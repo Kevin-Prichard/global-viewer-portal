@@ -8,13 +8,41 @@
       "end_line": 21
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 3
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 21
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 148
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 150
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 178
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 240
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 262
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 266
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 269
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 376
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
@@ -22,15 +50,23 @@
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 73
+        "line": 87
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 78
+        "line": 92
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 83
+        "line": 97
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 162
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 21
       }
     ]
   },
@@ -39,21 +75,25 @@
     "python_spec": {
       "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
       "target": "OnFirstVisit",
-      "start_line": 70,
-      "end_line": 73
+      "start_line": 84,
+      "end_line": 87
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 42
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 71
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 227
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 70
+        "line": 84
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 85
       }
     ]
   },
@@ -62,21 +102,25 @@
     "python_spec": {
       "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
       "target": "OnReturnVisit",
-      "start_line": 80,
-      "end_line": 83
+      "start_line": 94,
+      "end_line": 97
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 51
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 81
+        "line": 95
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 250
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 80
+        "line": 94
       }
     ]
   },
@@ -85,37 +129,53 @@
     "python_spec": {
       "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
       "target": "OnVisit",
-      "start_line": 65,
-      "end_line": 68
+      "start_line": 79,
+      "end_line": 82
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 60
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 66
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 252
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 276
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 284
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 436
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 76
+        "line": 79
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 65
+        "line": 87
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 73
+        "line": 89
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 75
+        "line": 97
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 83
+        "line": 80
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 90
       }
     ]
   },
@@ -124,21 +184,29 @@
     "python_spec": {
       "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
       "target": "OnVisitTermination",
-      "start_line": 75,
-      "end_line": 78
+      "start_line": 89,
+      "end_line": 92
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 69
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 76
+        "line": 90
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 284
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 436
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 75
+        "line": 89
       }
     ]
   },
@@ -151,17 +219,21 @@
       "end_line": 45
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
       "line": 78
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 40
+        "line": 42
       },
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 42
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 143
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 227
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
@@ -170,6 +242,41 @@
       {
         "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
         "line": 1254
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 40
+      }
+    ]
+  },
+  {
+    "component": "SpecifyIncrementalOutputFilename",
+    "python_spec": {
+      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+      "target": "SpecifyIncrementalOutputFilename",
+      "start_line": 61,
+      "end_line": 66
+    },
+    "xml_spec": {
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
+      "line": 93
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 63
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 61
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 62
+      },
+      {
+        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
+        "line": 1077
       }
     ]
   },
@@ -182,17 +289,25 @@
       "end_line": 52
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
-      "line": 93
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
+      "line": 108
     },
     "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 47
+      },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
         "line": 49
       },
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 47
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 12
+      },
+      {
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 145
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
@@ -213,17 +328,17 @@
       "end_line": 38
     },
     "xml_spec": {
-      "file": "spec-build/spec-502b3b6bc0f24736e44b.xml",
-      "line": 108
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
+      "line": 123
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 35
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 8
       },
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 33
+        "file": "/callisto/thucy/portal/index.html",
+        "line": 144
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
@@ -244,6 +359,45 @@
       {
         "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
         "line": 1471
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 33
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 35
+      }
+    ]
+  },
+  {
+    "component": "UseMIMETypesForCDNs",
+    "python_spec": {
+      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+      "target": "UseMIMETypesForCDNs",
+      "start_line": 54,
+      "end_line": 59
+    },
+    "xml_spec": {
+      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
+      "line": 138
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 56
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 55
+      },
+      {
+        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/setuptools-82.0.1.dist-info/RECORD",
+        "line": 150
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 54
       }
     ]
   }

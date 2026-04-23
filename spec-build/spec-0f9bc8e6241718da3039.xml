@@ -1,0 +1,153 @@
+<?xml version="1.0" ?>
+<specification_set date-created="2026-04-23T12:41:41.765489-07:00">
+  <specification type="GlobalViewerPortalState">
+    <source target="GlobalViewerPortalState" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>DATA-MODEL: globe-viewer-state
+FIELDS:
+
+
+  - longitude: &lt;class 'float'&gt;
+
+  - longitude_note: &lt;class 'str'&gt;
+
+  - latitude: &lt;class 'float'&gt;
+
+  - latitude_note: &lt;class 'str'&gt;
+
+  - altitude_m: &lt;class 'float'&gt;
+
+  - altitude_m_note: &lt;class 'str'&gt;
+
+  - base_map: &lt;class 'str'&gt;</description>
+    <notes>A data class to specify what data fields will be stored for remembering cookied user's current state within the app, during and between sessions.</notes>
+    <context>
+      <altitude_m>100</altitude_m>
+      <altitude_m_note>The user's portal altitude from earth mean surface level</altitude_m_note>
+      <fields>
+        <altitude_m>&lt;class 'float'&gt;</altitude_m>
+        <altitude_m_note>&lt;class 'str'&gt;</altitude_m_note>
+        <base_map>&lt;class 'str'&gt;</base_map>
+        <latitude>&lt;class 'float'&gt;</latitude>
+        <latitude_note>&lt;class 'str'&gt;</latitude_note>
+        <longitude>&lt;class 'float'&gt;</longitude>
+        <longitude_note>&lt;class 'str'&gt;</longitude_note>
+      </fields>
+      <latitude>37.77929461695388</latitude>
+      <latitude_note>The user's view portal's center point latitude in decimal form</latitude_note>
+      <longitude>-122.4192398965667</longitude>
+      <longitude_note>The user's view portal's center point longitude in decimal form</longitude_note>
+      <model_name>globe-viewer-state</model_name>
+    </context>
+  </specification>
+  <specification type="OnFirstVisit">
+    <source target="OnFirstVisit" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: on-first-visit</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. When a user visits for the very first time, generate a cookie called GLOBAL_VIEWER_UUID (containing a UUID) to know that they've visited.  Generate a second cookie named GLOBAL_VIEWER_STATE to contain GlobalViewerPortalState's values, stored as JSON that's been URI-encoded; LLM will provide code that performs the encodeURIComponent(JSON.stringify(GlobalViewerPortalState instance)) and cookie decoding e.g. JSON.parse(decodeURIComponent(cookie value)).  2. Perform the steps in OnVisit(Feature) to intialize the portal display.</description>
+      <feature_name>on-first-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnReturnVisit">
+    <source target="OnReturnVisit" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: on-return-visit</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE restore its encoded values to the GlobalViewerPortalState instance. 2. Perform the steps in OnVisit(Feature) to intialize the portal display</description>
+      <feature_name>on-return-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisit">
+    <source target="OnVisit" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: on-visit</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>When a user opens the site in a web browser, perform all software tasks necessary to load MapLibre GL JS's libraries, set the map/globe view portal up, initialize the portal to the default longitude, latitude and altitude</description>
+      <feature_name>on-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisitTermination">
+    <source target="OnVisitTermination" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: on-visit-close</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. Ensure that when the current browser tab or window closes, that the current GlobalViewerPortalState values are written to GLOBAL_VIEWER_STATE one last time. 2. Then perform all steps necessary to shut down MapLibre GL JS's currently running code, unload allocated objects -whatever's recommended by that project.</description>
+      <feature_name>on-visit-close</feature_name>
+    </context>
+  </specification>
+  <specification type="SingleFile">
+    <source target="SingleFile" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: one-source-html-file
+REQUIREMENT-ID: RQ1
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.</description>
+    <context>
+      <action>The LLM should generate all the source in a single HTML file, including ECMAscript</action>
+      <actor>LLM</actor>
+      <benefit>Simplify this project at its early stages, while still evaluating libspec and MapLibre GL JS</benefit>
+      <req_id>RQ1</req_id>
+      <title>one-source-html-file</title>
+    </context>
+  </specification>
+  <specification type="SpecifyIncrementalOutputFilename">
+    <source target="SpecifyIncrementalOutputFilename" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: specify-numbered-output-filenames
+REQUIREMENT-ID: RQ4
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.</description>
+    <context>
+      <action>When writing generated index.html, use the format index%03d.html and increment the number each time, so that previous versions are preserved.</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs when using CDN-loaded resources</benefit>
+      <req_id>RQ4</req_id>
+      <title>specify-numbered-output-filenames</title>
+    </context>
+  </specification>
+  <specification type="TargetCompatibleECMAScript">
+    <source target="TargetCompatibleECMAScript" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: target-compatible-ecmascript
+REQUIREMENT-ID: RQ2
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.</description>
+    <context>
+      <action>The LLM should generate code compatible with modern browsers, and use Babel &amp; core-js to ensure as wide of an audience as possible via transpiling and/or polyfilling</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs on as many devices as possible</benefit>
+      <req_id>RQ2</req_id>
+      <title>target-compatible-ecmascript</title>
+    </context>
+  </specification>
+  <specification type="TargetMapLibreGLJS">
+    <source target="TargetMapLibreGLJS" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: Make use of MapeLibre GL JS open-source library
+REQUIREMENT-ID: RQ0
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.</description>
+    <context>
+      <action>provides core map and globe visualization software and tile data</action>
+      <actor>LLM</actor>
+      <benefit>provides a software base that handles an estimated 99% of this app's needs</benefit>
+      <req_id>RQ0</req_id>
+      <title>Make use of MapeLibre GL JS open-source library</title>
+    </context>
+  </specification>
+  <specification type="UseMIMETypesForCDNs">
+    <source target="UseMIMETypesForCDNs" file="/callisto/thucy/portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: specify-mimetype-for-cdn-scripts
+REQUIREMENT-ID: RQ3
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.</description>
+    <context>
+      <action>When generating &lt;Script&gt; tags for CDN resources, the LLM should generate &lt;script&gt; tags that specify mime-types, otherwise browser error handlers will throw errors and prevent the page from rendering.</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs when using CDN-loaded resources</benefit>
+      <req_id>RQ3</req_id>
+      <title>specify-mimetype-for-cdn-scripts</title>
+    </context>
+  </specification>
+</specification_set>
