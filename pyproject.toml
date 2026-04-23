@@ -12,3 +12,7 @@ dev = [
 
 [tool.uv.sources]
 libspec = { git = "https://github.com/drhodes/libspec.git" }
+
+# (the following repo is now out of date, libspec fixed an idempotency bug)
+#libspec = { git = "https://github.com/Kevin-Prichard/libspec.git", rev = "656dc4e346095cdad50ac7cd243dcb3f775d33db" }
+
