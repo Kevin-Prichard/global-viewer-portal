@@ -1,0 +1,14 @@
+[project]
+name = "global-viewer-portal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+
+[dependency-groups]
+dev = [
+    "libspec",
+]
+
+[tool.uv.sources]
+libspec = { git = "https://github.com/drhodes/libspec.git" }

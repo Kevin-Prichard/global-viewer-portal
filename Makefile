@@ -4,7 +4,7 @@ SPEC_BUILD=spec-build
 
 .PHONY: spec
 spec: $(SPECS)
-	$(PY) -m spec.main_spec
+	$(PY) -m spec.main
 
 .PHONY: diff
 diff:
