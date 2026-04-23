@@ -51,6 +51,20 @@ class TargetCompatibleECMAScript(Requirement):
     def action(self):  return "The LLM should generate code compatible with modern browsers, and use Babel & core-js to ensure as wide of an audience as possible via transpiling and/or polyfilling"
     def benefit(self): return "Ensure this web app runs on as many devices as possible"
 
+class UseMIMETypesForCDNs(Requirement):
+    def req_id(self):  return "RQ3"
+    def title(self):   return "specify-mimetype-for-cdn-scripts"
+    def actor(self):   return "LLM"
+    def action(self):  return "When generating <Script> tags for CDN resources, the LLM should generate <script> tags that specify mime-types, otherwise browser error handlers will throw errors and prevent the page from rendering."
+    def benefit(self): return "Ensure this web app runs when using CDN-loaded resources"
+
+class SpecifyIncrementalOutputFilename(Requirement):
+    def req_id(self):  return "RQ4"
+    def title(self):   return "specify-numbered-output-filenames"
+    def actor(self):   return "LLM"
+    def action(self):  return "When writing generated index.html, use the format index%03d.html and increment the number each time, so that previous versions are preserved."
+    def benefit(self): return "Ensure this web app runs when using CDN-loaded resources"
+
 
 ## --- FEATURES ---
 DATE_VER_0_0_0 = "2026-04-22"

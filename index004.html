@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Viewer Portal</title>
+
+  <!-- RQ0: Make use of MapLibre GL JS -->
+  <!-- RQ3: specify-mimetype-for-cdn-scripts — all CDN <script> tags carry type="text/javascript" -->
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css"
+  />
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+  ></script>
+
+  <!--
+    RQ2: target-compatible-ecmascript
+    core-js polyfills ensure wide browser compatibility.
+    Plain ES5-compatible JS is used; no transpiler required.
+  -->
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/core-js-bundle@3.38.1/minified.js"
+  ></script>
+
+  <style>
+    :root {
+      --panel-bg:   rgba(255,255,255,0.93);
+      --panel-fg:   #111;
+      --accent:     #1769e0;
+      --error:      #c62828;
+      --brand-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body, #app, #map {
+      width: 100%;
+      height: 100%;
+      font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #app { position: relative; background: #0b1020; }
+
+    /* ── brand watermark bars ───────────────────────────────────────
+       Positioned fixed relative to #app (position:absolute children of
+       a position:relative parent behave like fixed within the viewport
+       area, so they float over the map regardless of pan/zoom).
+       z-index 8 keeps them above the map (z:1) and controls (z:5/6)
+       but they are pointer-events:none so they don't swallow clicks.
+    ──────────────────────────────────────────────────────────────── */
+    .brand-bar {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      z-index: 8;
+      pointer-events: none;
+      text-align: center;
+
+      font-family: var(--brand-font);
+      font-size: clamp(0.7rem, 2vw, 1.15rem);
+      font-weight: 800;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+
+      color: rgba(255, 255, 255, 0.90);
+      text-shadow:
+        0 0 12px rgba(0, 0, 0, 0.85),
+        0 1px  3px rgba(0, 0, 0, 0.70);
+
+      padding: 0.55rem 1rem;
+
+      /* subtle gradient bar so it reads on any background */
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.38) 0%,
+        rgba(0, 0, 0, 0.00) 100%
+      );
+    }
+
+    .brand-bar.top    { top: 0; }
+    .brand-bar.bottom {
+      bottom: 0;
+      /* flip gradient direction for bottom bar */
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.38) 0%,
+        rgba(0, 0, 0, 0.00) 100%
+      );
+    }
+
+    /* ── control panel ──────────────────────────────────────────── */
+    #panel {
+      position: absolute;
+      z-index: 5;
+      right: 1rem;
+      top: 2.8rem;        /* clear the top brand bar */
+      width: min(340px, calc(100% - 2rem));
+      background: var(--panel-bg);
+      color: var(--panel-fg);
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 26px rgba(0,0,0,.35);
+      padding: 0.85rem;
+      backdrop-filter: blur(4px);
+    }
+
+    #panel h1 { font-size: 1rem; margin-bottom: 0.5rem; }
+
+    #panel .meta {
+      font-size: 0.78rem;
+      margin-bottom: 0.6rem;
+      opacity: 0.75;
+      word-break: break-all;
+    }
+
+    #panel dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.3rem 0.6rem;
+      font-size: 0.82rem;
+      margin-bottom: 0.6rem;
+    }
+
+    #panel dt { font-weight: 600; }
+    #panel dd { text-align: right; }
+
+    #panel .map-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 0.7rem;
+    }
+
+    #panel .map-selector label {
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    #panel select {
+      width: 100%;
+      padding: 0.35rem 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.3rem;
+      font-size: 0.82rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    #panel .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    #panel button {
+      border: none;
+      border-radius: 0.35rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    #panel button.secondary { background: #6f7785; }
+    #panel button:hover     { filter: brightness(1.15); }
+
+    /* ── status bar ─────────────────────────────────────────────── */
+    #status {
+      position: absolute;
+      z-index: 6;
+      left: 1rem;
+      bottom: 2.6rem;     /* clear the bottom brand bar */
+      background: rgba(0,0,0,.65);
+      color: #fff;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.35rem;
+      font-size: 0.8rem;
+      max-width: min(480px, calc(100% - 2rem));
+      pointer-events: none;
+    }
+
+    #status.is-error { background: var(--error); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <!-- RQ1: one-source-html-file — all markup, style and ECMAScript in one file -->
+  <div id="app">
+    <div id="map" aria-label="Global map portal"></div>
+
+    <!-- brand watermark — top -->
+    <div class="brand-bar top" aria-hidden="true">THUCYDIDES AEROSPACE</div>
+
+    <!-- brand watermark — bottom -->
+    <div class="brand-bar bottom" aria-hidden="true">THUCYDIDES AEROSPACE</div>
+
+    <section id="panel" aria-live="polite">
+      <h1>Global Viewer Portal</h1>
+      <div class="meta">Visitor UUID: <span id="uuidValue">(initializing…)</span></div>
+      <dl>
+        <dt>Longitude</dt>   <dd id="longitudeValue">—</dd>
+        <dt>Latitude</dt>    <dd id="latitudeValue">—</dd>
+        <dt>Altitude (m)</dt><dd id="altitudeValue">—</dd>
+      </dl>
+
+      <div class="map-selector">
+        <label for="baseMapSelect">Base Map</label>
+        <select id="baseMapSelect">
+          <option value="satellite-roads">Satellite + Roads (Esri)</option>
+          <option value="liberty">Street Map — Liberty (OpenFreeMap)</option>
+          <option value="bright">Street Map — Bright (OpenFreeMap)</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button id="resetViewBtn" type="button">Reset Default View</button>
+        <button id="saveNowBtn"   type="button" class="secondary">Save State</button>
+      </div>
+    </section>
+
+    <div id="status" role="status">Loading portal…</div>
+  </div>
+
+  <!--
+    RQ1: one-source-html-file
+    RQ2: target-compatible-ecmascript (ES5-compatible — no transpiler needed)
+    RQ4: specify-numbered-output-filenames — this file is index004.html
+  -->
+  <script type="text/javascript">
+  (function () {
+    'use strict';
+
+    /* ── constants ──────────────────────────────────────────────── */
+    var COOKIE_UUID  = 'GLOBAL_VIEWER_UUID';
+    var COOKIE_STATE = 'GLOBAL_VIEWER_STATE';
+
+    /*
+     * Available base maps.
+     *
+     * satellite-roads  – Esri World Imagery (satellite) + Esri World
+     *                    Transportation (transparent roads/labels overlay).
+     *                    Both are public XYZ raster services; no API key needed.
+     *
+     * liberty          – OpenFreeMap Liberty vector style (no key needed).
+     * bright           – OpenFreeMap Bright vector style  (no key needed).
+     */
+    var BASE_MAPS = {
+      'satellite-roads': {
+        label: 'Satellite + Roads (Esri)',
+        makeStyle: function () {
+          return {
+            version: 8,
+            sources: {
+              'esri-satellite': {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: 'Esri, DigitalGlobe, GeoEye, i-cubed, USDA FSA, USGS, AEX, Getmapping, Aerogrid, IGN, IGP, UPR-EGP and the GIS User Community'
+              },
+              'esri-roads': {
+                type: 'raster',
+                tiles: [
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'
+                ],
+                tileSize: 256,
+                attribution: 'Esri, HERE, DeLorme, MapmyIndia, © OpenStreetMap contributors'
+              }
+            },
+            layers: [
+              { id: 'satellite', type: 'raster', source: 'esri-satellite' },
+              { id: 'roads',     type: 'raster', source: 'esri-roads'     }
+            ]
+          };
+        }
+      },
+      'liberty': {
+        label: 'Street Map — Liberty (OpenFreeMap)',
+        makeStyle: function () { return 'https://tiles.openfreemap.org/styles/liberty'; }
+      },
+      'bright': {
+        label: 'Street Map — Bright (OpenFreeMap)',
+        makeStyle: function () { return 'https://tiles.openfreemap.org/styles/bright'; }
+      }
+    };
+
+    var DEFAULT_BASE_MAP = 'satellite-roads';
+
+    /* ── default portal state (matches spec context block) ──────── */
+    var DEFAULTS = {
+      longitude:       -122.4192398965667,
+      longitude_note:  "The user's view portal's center point longitude in decimal form",
+      latitude:        37.77929461695388,
+      latitude_note:   "The user's view portal's center point latitude in decimal form",
+      altitude_m:      100,
+      altitude_m_note: "The user's portal altitude from earth mean surface level",
+      base_map:        DEFAULT_BASE_MAP
+    };
+
+    /* ─────────────────────────────────────────────────────────────
+     * GlobalViewerPortalState — DATA-MODEL: globe-viewer-state
+     * Fields: longitude, longitude_note, latitude, latitude_note,
+     *         altitude_m, altitude_m_note, base_map
+     * ────────────────────────────────────────────────────────────*/
+    function GlobalViewerPortalState(data) {
+      data = data || {};
+      this.longitude       = isFinite(data.longitude)  ? +data.longitude  : DEFAULTS.longitude;
+      this.longitude_note  = data.longitude_note  || DEFAULTS.longitude_note;
+      this.latitude        = isFinite(data.latitude)   ? +data.latitude   : DEFAULTS.latitude;
+      this.latitude_note   = data.latitude_note   || DEFAULTS.latitude_note;
+      this.altitude_m      = isFinite(data.altitude_m) ? +data.altitude_m : DEFAULTS.altitude_m;
+      this.altitude_m_note = data.altitude_m_note || DEFAULTS.altitude_m_note;
+      this.base_map        = (BASE_MAPS[data.base_map]) ? data.base_map   : DEFAULTS.base_map;
+    }
+
+    GlobalViewerPortalState.prototype.toJSON = function () {
+      return {
+        longitude:       this.longitude,
+        longitude_note:  this.longitude_note,
+        latitude:        this.latitude,
+        latitude_note:   this.latitude_note,
+        altitude_m:      this.altitude_m,
+        altitude_m_note: this.altitude_m_note,
+        base_map:        this.base_map
+      };
+    };
+
+    /* ── CookieStore ────────────────────────────────────────────── */
+    var CookieStore = {
+      setRaw: function (name, rawValue, maxAgeDays) {
+        maxAgeDays = (maxAgeDays === undefined) ? 365 : maxAgeDays;
+        var expires = new Date(Date.now() + maxAgeDays * 86400000).toUTCString();
+        document.cookie = name + '=' + rawValue +
+          '; expires=' + expires + '; path=/; SameSite=Lax';
+      },
+      getRaw: function (name) {
+        if (!document.cookie) return null;
+        var prefix = name + '=';
+        var pairs  = document.cookie.split('; ');
+        for (var i = 0; i < pairs.length; i++) {
+          if (pairs[i].indexOf(prefix) === 0) return pairs[i].slice(prefix.length);
+        }
+        return null;
+      }
+    };
+
+    /* ── helpers ────────────────────────────────────────────────── */
+    function altitudeFromZoom(zoom) {
+      return 40075000 / Math.pow(2, zoom + 8);
+    }
+
+    function zoomFromAltitude(alt) {
+      if (!isFinite(alt) || alt <= 0) return 17;
+      return Math.max(1.5, Math.log2(40075000 / alt) - 8);
+    }
+
+    function createUUID() {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return window.crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    function el(id) { return document.getElementById(id); }
+
+    function setStatus(msg, isError) {
+      var node = el('status');
+      node.textContent = msg;
+      node.classList.toggle('is-error', !!isError);
+    }
+
+    function updatePanel(state, map) {
+      var lng = state.longitude, lat = state.latitude, alt = state.altitude_m;
+      if (map) {
+        var c = map.getCenter();
+        lng = c.lng; lat = c.lat;
+        alt = altitudeFromZoom(map.getZoom());
+      }
+      el('longitudeValue').textContent = lng.toFixed(6);
+      el('latitudeValue').textContent  = lat.toFixed(6);
+      el('altitudeValue').textContent  = alt.toFixed(2);
+    }
+
+    /* ── state cookie ───────────────────────────────────────────── */
+    function persistState(state) {
+      /* Spec-required encoding: encodeURIComponent(JSON.stringify(state)) */
+      CookieStore.setRaw(COOKIE_STATE, encodeURIComponent(JSON.stringify(state.toJSON())));
+    }
+
+    function restoreState() {
+      var raw = CookieStore.getRaw(COOKIE_STATE);
+      if (!raw) return new GlobalViewerPortalState();
+      try {
+        /* Spec-required decoding: JSON.parse(decodeURIComponent(cookieValue)) */
+        return new GlobalViewerPortalState(JSON.parse(decodeURIComponent(raw)));
+      } catch (e) {
+        console.error('[portal] Failed to parse GLOBAL_VIEWER_STATE; using defaults.', e);
+        return new GlobalViewerPortalState();
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+     * Portal bootstrap
+     * ────────────────────────────────────────────────────────────*/
+    function bootPortal() {
+      var state;
+      var map            = null;
+      var terminationRan = false;
+
+      /* ── OnFirstVisit / OnReturnVisit ───────────────────────── */
+      var existingUUID = CookieStore.getRaw(COOKIE_UUID);
+
+      if (!existingUUID) {
+        /* OnFirstVisit:
+           1. Generate GLOBAL_VIEWER_UUID cookie (UUID)
+           2. Generate GLOBAL_VIEWER_STATE cookie (URI-encoded JSON)
+           3. Call OnVisit  */
+        var newUUID = createUUID();
+        CookieStore.setRaw(COOKIE_UUID, newUUID);
+        state = new GlobalViewerPortalState();
+        persistState(state);
+        el('uuidValue').textContent = newUUID;
+        setStatus('First visit — initialising portal…');
+      } else {
+        /* OnReturnVisit:
+           1. Restore GLOBAL_VIEWER_STATE into GlobalViewerPortalState
+           2. Call OnVisit  */
+        state = restoreState();
+        el('uuidValue').textContent = existingUUID;
+        setStatus('Welcome back — restoring portal…');
+      }
+
+      /* Sync the selector to the current state */
+      el('baseMapSelect').value = state.base_map;
+
+      /* ── OnVisit: initialise MapLibre GL JS ─────────────────── */
+      if (!window.maplibregl) {
+        setStatus('MapLibre GL JS failed to load — check network connection.', true);
+        return;
+      }
+
+      function buildMap(baseMapKey) {
+        var bm    = BASE_MAPS[baseMapKey] || BASE_MAPS[DEFAULT_BASE_MAP];
+        var style = bm.makeStyle();
+
+        map = new maplibregl.Map({
+          container:          'map',
+          style:              style,
+          center:             [state.longitude, state.latitude],
+          zoom:               zoomFromAltitude(state.altitude_m),
+          pitch:              35,
+          bearing:            0,
+          attributionControl: true
+        });
+
+        map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
+        map.addControl(new maplibregl.ScaleControl(), 'bottom-right');
+
+        map.once('load', function () {
+          setStatus('Portal ready — move the map to explore; state is saved on close.');
+          updatePanel(state, map);
+        });
+
+        map.on('moveend', function () {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+          updatePanel(state, map);
+        });
+
+        map.on('error', function (e) {
+          console.error('[maplibre]', e.error);
+          setStatus('Map error: ' + (e.error && e.error.message ? e.error.message : 'unknown'), true);
+        });
+      }
+
+      buildMap(state.base_map);
+
+      /* ── base map switcher ──────────────────────────────────── */
+      el('baseMapSelect').addEventListener('change', function () {
+        var chosen = this.value;
+        if (!BASE_MAPS[chosen]) return;
+
+        /* Capture position before destroying current map */
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+          map.remove();
+          map = null;
+        }
+
+        state.base_map = chosen;
+        persistState(state);
+        setStatus('Switching to ' + BASE_MAPS[chosen].label + '…');
+        buildMap(chosen);
+      });
+
+      /* ── UI buttons ─────────────────────────────────────────── */
+      el('resetViewBtn').addEventListener('click', function () {
+        var savedBaseMap = state.base_map;
+        state = new GlobalViewerPortalState();
+        state.base_map = savedBaseMap;
+        if (map) {
+          map.flyTo({
+            center:    [state.longitude, state.latitude],
+            zoom:      zoomFromAltitude(state.altitude_m),
+            essential: true,
+            duration:  1400
+          });
+        }
+        persistState(state);
+        updatePanel(state, null);
+        setStatus('Reset to default view.');
+      });
+
+      el('saveNowBtn').addEventListener('click', function () {
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+        }
+        persistState(state);
+        setStatus('State saved to GLOBAL_VIEWER_STATE cookie.');
+      });
+
+      /* ── OnVisitTermination ─────────────────────────────────── */
+      function onVisitTermination() {
+        if (terminationRan) return;
+        terminationRan = true;
+
+        /* 1. Write final state to GLOBAL_VIEWER_STATE */
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+        }
+        persistState(state);
+
+        /* 2. Shut down MapLibre: remove() releases WebGL context + all listeners */
+        if (map) {
+          map.remove();
+          map = null;
+        }
+      }
+
+      window.addEventListener('beforeunload', onVisitTermination);
+      window.addEventListener('pagehide',     onVisitTermination); /* mobile/bfcache */
+    }
+
+    /* Wait for the DOM before touching any element IDs */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootPortal);
+    } else {
+      bootPortal();
+    }
+
+  }());
+  </script>
+
+  <!-- RQ4: specify-numbered-output-filenames — artifact index004.html -->
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Viewer Portal</title>
+
+  <!-- RQ0: Make use of MapLibre GL JS -->
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css"
+  />
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+  ></script>
+
+  <!-- RQ2: Babel + core-js for broad browser compatibility -->
+  <!-- RQ3: CDN script tags include MIME types -->
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/core-js-bundle@3.38.1/minified.js"
+  ></script>
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/regenerator-runtime@0.14.1/runtime.min.js"
+  ></script>
+  <script
+    type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.7/babel.min.js"
+  ></script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --panel-bg: rgba(255, 255, 255, 0.9);
+      --panel-fg: #111;
+      --accent: #1769e0;
+      --error: #c62828;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body,
+    #app,
+    #map {
+      width: 100%;
+      height: 100%;
+      font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #app {
+      position: relative;
+      background: #0b1020;
+    }
+
+    #panel {
+      position: absolute;
+      z-index: 5;
+      right: 1rem;
+      top: 1rem;
+      width: min(330px, calc(100% - 2rem));
+      background: var(--panel-bg);
+      color: var(--panel-fg);
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+      padding: 0.8rem;
+      backdrop-filter: blur(4px);
+    }
+
+    #panel h1 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    #panel .meta {
+      font-size: 0.8rem;
+      margin-bottom: 0.6rem;
+      opacity: 0.8;
+      word-break: break-all;
+    }
+
+    #panel dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.3rem 0.6rem;
+      font-size: 0.82rem;
+      margin-bottom: 0.7rem;
+    }
+
+    #panel dt {
+      font-weight: 600;
+    }
+
+    #panel dd {
+      text-align: right;
+    }
+
+    #panel .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    #panel button {
+      border: none;
+      border-radius: 0.35rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    #panel button.secondary {
+      background: #6f7785;
+    }
+
+    #status {
+      position: absolute;
+      z-index: 6;
+      left: 1rem;
+      bottom: 1rem;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.35rem;
+      font-size: 0.8rem;
+      max-width: min(480px, calc(100% - 2rem));
+    }
+
+    .error {
+      color: var(--error);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="map" aria-label="Global map portal"></div>
+
+    <section id="panel" aria-live="polite">
+      <h1>Global Viewer Portal</h1>
+      <div class="meta">Visitor UUID: <span id="uuidValue">(initializing)</span></div>
+      <dl>
+        <dt>Longitude</dt>
+        <dd id="longitudeValue">-</dd>
+        <dt>Latitude</dt>
+        <dd id="latitudeValue">-</dd>
+        <dt>Altitude (m)</dt>
+        <dd id="altitudeValue">-</dd>
+        <dt>Base map</dt>
+        <dd id="baseMapValue">-</dd>
+      </dl>
+      <div class="btn-row">
+        <button id="resetViewBtn" type="button">Reset Default View</button>
+        <button id="saveNowBtn" class="secondary" type="button">Save State</button>
+      </div>
+    </section>
+
+    <div id="status" role="status">Loading map libraries and portal...</div>
+  </div>
+
+  <!-- RQ1: one-source-html-file (single HTML + embedded ECMAScript) -->
+  <script type="text/babel">
+    (function () {
+      'use strict';
+
+      const COOKIE_UUID = 'GLOBAL_VIEWER_UUID';
+      const COOKIE_STATE = 'GLOBAL_VIEWER_STATE';
+
+      const DEFAULTS = {
+        longitude: -122.4192398965667,
+        longitude_note: "The user's view portal's center point longitude in decimal form",
+        latitude: 37.77929461695388,
+        latitude_note: "The user's view portal's center point latitude in decimal form",
+        altitude_m: 100,
+        altitude_m_note: "The user's portal altitude from earth mean surface level",
+        base_map: 'OpenStreetMap',
+      };
+
+      class GlobalViewerPortalState {
+        constructor(data = {}) {
+          this.longitude = Number.isFinite(data.longitude) ? data.longitude : DEFAULTS.longitude;
+          this.longitude_note = data.longitude_note || DEFAULTS.longitude_note;
+          this.latitude = Number.isFinite(data.latitude) ? data.latitude : DEFAULTS.latitude;
+          this.latitude_note = data.latitude_note || DEFAULTS.latitude_note;
+          this.altitude_m = Number.isFinite(data.altitude_m) ? data.altitude_m : DEFAULTS.altitude_m;
+          this.altitude_m_note = data.altitude_m_note || DEFAULTS.altitude_m_note;
+          this.base_map = typeof data.base_map === 'string' ? data.base_map : DEFAULTS.base_map;
+        }
+
+        toJSON() {
+          return {
+            longitude: this.longitude,
+            longitude_note: this.longitude_note,
+            latitude: this.latitude,
+            latitude_note: this.latitude_note,
+            altitude_m: this.altitude_m,
+            altitude_m_note: this.altitude_m_note,
+            base_map: this.base_map,
+          };
+        }
+      }
+
+      const CookieStore = {
+        setRaw(name, rawValue, maxAgeDays = 365) {
+          const expires = new Date(Date.now() + maxAgeDays * 86400000).toUTCString();
+          document.cookie = `${name}=${rawValue}; expires=${expires}; path=/; SameSite=Lax`;
+        },
+
+        getRaw(name) {
+          const pairs = document.cookie ? document.cookie.split('; ') : [];
+          const prefix = `${name}=`;
+          for (let i = 0; i < pairs.length; i += 1) {
+            if (pairs[i].startsWith(prefix)) {
+              return pairs[i].slice(prefix.length);
+            }
+          }
+          return null;
+        },
+      };
+
+      class GlobalViewerPortalApp {
+        constructor() {
+          this.map = null;
+          this.state = new GlobalViewerPortalState();
+          this.persistedDuringUnload = false;
+          this.statusNode = document.getElementById('status');
+          this.uuidNode = document.getElementById('uuidValue');
+        }
+
+        init() {
+          const uuid = CookieStore.getRaw(COOKIE_UUID);
+          if (!uuid) {
+            this.onFirstVisit();
+          } else {
+            this.onReturnVisit();
+          }
+          this.bindUiActions();
+          this.bindTerminationHandlers();
+        }
+
+        onFirstVisit() {
+          const uuid = this.createUuid();
+          CookieStore.setRaw(COOKIE_UUID, uuid);
+
+          this.state = new GlobalViewerPortalState();
+          this.persistStateCookie();
+          this.onVisit(uuid, true);
+        }
+
+        onReturnVisit() {
+          const uuid = CookieStore.getRaw(COOKIE_UUID);
+          const stateCookieValue = CookieStore.getRaw(COOKIE_STATE);
+
+          if (stateCookieValue) {
+            try {
+              // Spec-required decoding flow: JSON.parse(decodeURIComponent(cookieValue))
+              const parsed = JSON.parse(decodeURIComponent(stateCookieValue));
+              this.state = new GlobalViewerPortalState(parsed);
+            } catch (error) {
+              console.error('Unable to parse state cookie; falling back to defaults.', error);
+              this.state = new GlobalViewerPortalState();
+              this.persistStateCookie();
+            }
+          } else {
+            this.state = new GlobalViewerPortalState();
+            this.persistStateCookie();
+          }
+
+          this.onVisit(uuid, false);
+        }
+
+        onVisit(uuid, isFirst) {
+          this.uuidNode.textContent = uuid;
+          this.setStatus(isFirst ? 'First visit detected. Initializing globe portal...' : 'Returning visitor detected. Restoring portal...');
+          this.initializeMapLibre();
+        }
+
+        onVisitTermination() {
+          if (this.persistedDuringUnload) {
+            return;
+          }
+          this.persistedDuringUnload = true;
+
+          this.captureStateFromMap();
+          this.persistStateCookie();
+
+          if (this.map) {
+            this.map.remove();
+            this.map = null;
+          }
+        }
+
+        initializeMapLibre() {
+          if (!window.maplibregl || !window.maplibregl.Map) {
+            this.setStatus('MapLibre GL JS is unavailable. Check CDN connectivity.', true);
+            return;
+          }
+
+          this.map = new window.maplibregl.Map({
+            container: 'map',
+            style: 'https://demotiles.maplibre.org/style.json',
+            center: [this.state.longitude, this.state.latitude],
+            zoom: this.zoomFromAltitude(this.state.altitude_m),
+            pitch: 35,
+            bearing: 0,
+            projection: 'globe',
+            attributionControl: true,
+          });
+
+          this.map.addControl(new window.maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
+          this.map.on('styleimagemissing', () => {
+            this.setStatus('Map style is loading; waiting for full assets...');
+          });
+
+          this.map.once('load', () => {
+            this.setStatus('Portal ready. Move the map; your state is saved on close.');
+            this.updatePanelValues();
+          });
+
+          this.map.on('moveend', () => {
+            this.captureStateFromMap();
+            this.updatePanelValues();
+          });
+        }
+
+        bindUiActions() {
+          document.getElementById('resetViewBtn').addEventListener('click', () => {
+            this.state = new GlobalViewerPortalState();
+            if (this.map) {
+              this.map.flyTo({
+                center: [this.state.longitude, this.state.latitude],
+                zoom: this.zoomFromAltitude(this.state.altitude_m),
+                essential: true,
+                duration: 1200,
+              });
+            }
+            this.persistStateCookie();
+            this.updatePanelValues();
+            this.setStatus('Portal reset to default state.');
+          });
+
+          document.getElementById('saveNowBtn').addEventListener('click', () => {
+            this.captureStateFromMap();
+            this.persistStateCookie();
+            this.setStatus('State persisted to GLOBAL_VIEWER_STATE cookie.');
+          });
+        }
+
+        bindTerminationHandlers() {
+          const terminate = () => {
+            this.onVisitTermination();
+          };
+
+          // Save one last time when tab/window closes or page is discarded.
+          window.addEventListener('beforeunload', terminate);
+          window.addEventListener('pagehide', terminate);
+        }
+
+        captureStateFromMap() {
+          if (!this.map) {
+            return;
+          }
+          const center = this.map.getCenter();
+          this.state.longitude = center.lng;
+          this.state.latitude = center.lat;
+          this.state.altitude_m = this.altitudeFromZoom(this.map.getZoom());
+        }
+
+        persistStateCookie() {
+          // Spec-required encoding flow: encodeURIComponent(JSON.stringify(stateObj))
+          const encoded = encodeURIComponent(JSON.stringify(this.state.toJSON()));
+          CookieStore.setRaw(COOKIE_STATE, encoded);
+        }
+
+        updatePanelValues() {
+          document.getElementById('longitudeValue').textContent = this.state.longitude.toFixed(6);
+          document.getElementById('latitudeValue').textContent = this.state.latitude.toFixed(6);
+          document.getElementById('altitudeValue').textContent = this.state.altitude_m.toFixed(2);
+          document.getElementById('baseMapValue').textContent = this.state.base_map;
+        }
+
+        setStatus(message, isError = false) {
+          this.statusNode.textContent = message;
+          this.statusNode.classList.toggle('error', isError);
+        }
+
+        createUuid() {
+          if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
+            const random = Math.floor(Math.random() * 16);
+            const value = char === 'x' ? random : (random & 0x3) | 0x8;
+            return value.toString(16);
+          });
+        }
+
+        altitudeFromZoom(zoom) {
+          return 40075000 / Math.pow(2, zoom + 8);
+        }
+
+        zoomFromAltitude(altitude) {
+          if (!Number.isFinite(altitude) || altitude <= 0) {
+            return 17;
+          }
+          return Math.max(1.5, Math.log2(40075000 / altitude) - 8);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const app = new GlobalViewerPortalApp();
+        app.init();
+      });
+    })();
+  </script>
+
+  <!-- RQ4: Generated as numbered artifact index001.html -->
+</body>
+</html>
