@@ -1,0 +1,18 @@
+[project]
+name = "global-viewer-portal"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+
+[dependency-groups]
+dev = [
+    "libspec",
+]
+
+[tool.uv.sources]
+libspec = { git = "https://github.com/drhodes/libspec.git" }
+
+# (the following repo is now out of date, libspec fixed an idempotency bug)
+#libspec = { git = "https://github.com/Kevin-Prichard/libspec.git", rev = "656dc4e346095cdad50ac7cd243dcb3f775d33db" }
+

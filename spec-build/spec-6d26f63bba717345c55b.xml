@@ -1,0 +1,188 @@
+<?xml version="1.0" ?>
+<specification_set date-created="2026-04-23T09:35:05.104004-07:00" libspec-version="1.0.1">
+  <specification type="GlobalViewerPortalState">
+    <source target="GlobalViewerPortalState" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>DATA-MODEL: globe-viewer-state
+FIELDS:
+
+
+  - longitude: &lt;class 'float'&gt;
+
+  - longitude_note: &lt;class 'str'&gt;
+
+  - latitude: &lt;class 'float'&gt;
+
+  - latitude_note: &lt;class 'str'&gt;
+
+  - altitude_m: &lt;class 'float'&gt;
+
+  - altitude_m_note: &lt;class 'str'&gt;
+
+  - base_map: &lt;class 'str'&gt;</description>
+    <notes>A data class to specify what data fields will be stored for
+remembering cookied user's current state within the app, during
+and between sessions.</notes>
+    <context>
+      <altitude_m>100</altitude_m>
+      <altitude_m_note>The user's portal altitude from earth mean surface level</altitude_m_note>
+      <fields>
+        <altitude_m>&lt;class 'float'&gt;</altitude_m>
+        <altitude_m_note>&lt;class 'str'&gt;</altitude_m_note>
+        <base_map>&lt;class 'str'&gt;</base_map>
+        <latitude>&lt;class 'float'&gt;</latitude>
+        <latitude_note>&lt;class 'str'&gt;</latitude_note>
+        <longitude>&lt;class 'float'&gt;</longitude>
+        <longitude_note>&lt;class 'str'&gt;</longitude_note>
+      </fields>
+      <latitude>37.77929461695388</latitude>
+      <latitude_note>The user's view portal's center point latitude in decimal form</latitude_note>
+      <longitude>-122.4192398965667</longitude>
+      <longitude_note>The user's view portal's center point longitude in decimal form</longitude_note>
+      <model_name>globe-viewer-state</model_name>
+    </context>
+  </specification>
+  <specification type="OnFirstVisit">
+    <source target="OnFirstVisit" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: OnFirstVisit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>1. When a user visits for the very first time, generate a cookie
+called GLOBAL_VIEWER_UUID (containing a UUID) to know that they've
+visited.  Generate a second cookie named GLOBAL_VIEWER_STATE to
+contain GlobalViewerPortalState's values, stored as JSON that's
+been URI-encoded; LLM will provide code that performs the:
+encodeURIComponent(JSON.stringify(GlobalViewerPortalState instance))  
+and cookie decoding e.g. JSON.parse(decodeURIComponent(cookie value)).
+
+2. Perform the steps in OnVisit(Feature) to intialize
+the portal display.</notes>
+    <context>
+      <feature_name>OnFirstVisit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnReturnVisit">
+    <source target="OnReturnVisit" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: OnReturnVisit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE
+restore its encoded values to the GlobalViewerPortalState
+instance. 2. Perform the steps in OnVisit(Feature) to intialize
+the portal display</notes>
+    <context>
+      <feature_name>OnReturnVisit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisit">
+    <source target="OnVisit" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: OnVisit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>When a user opens the site in a web browser, perform all
+software tasks necessary to load MapLibre GL JS's libraries, set
+the map/globe view portal up, initialize the portal to the default
+longitude, latitude and altitude</notes>
+    <context>
+      <feature_name>OnVisit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisitTermination">
+    <source target="OnVisitTermination" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Feature Specification: OnVisitTermination
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>1. Ensure that when the current browser tab or window closes,
+that the current GlobalViewerPortalState values are written to
+GLOBAL_VIEWER_STATE one last time. 2. Then perform all steps
+necessary to shut down MapLibre GL JS's currently running code,
+unload allocated objects -whatever's recommended by that project.</notes>
+    <context>
+      <feature_name>OnVisitTermination</feature_name>
+    </context>
+  </specification>
+  <specification type="SingleFile">
+    <source target="SingleFile" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: SingleFile
+REQUIREMENT-ID: spec.global_viewer_portal.SingleFile
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>Instruction: Generate all the source in a single HTML file,
+including ECMAscript"
+
+Simplify this project at its early stages, while still evaluating
+libspec and MapLibre GL JS</notes>
+    <context>
+      <req_id>spec.global_viewer_portal.SingleFile</req_id>
+      <title>SingleFile</title>
+    </context>
+  </specification>
+  <specification type="TargetCompatibleECMAScript">
+    <source target="TargetCompatibleECMAScript" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: TargetCompatibleECMAScript
+REQUIREMENT-ID: spec.global_viewer_portal.TargetCompatibleECMAScript
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>The LLM should generate code compatible with modern browsers,
+and use Babel &amp; core-js to ensure as wide of an audience as
+possible via transpiling and/or polyfilling
+
+Ensure this web app runs on as many devices as possible</notes>
+    <context>
+      <req_id>spec.global_viewer_portal.TargetCompatibleECMAScript</req_id>
+      <title>TargetCompatibleECMAScript</title>
+    </context>
+  </specification>
+  <specification type="TargetMapLibreGLJS">
+    <source target="TargetMapLibreGLJS" file="/usr/backup-working/work/global-viewer-portal/spec/global_viewer_portal.py"/>
+    <description>Requirement
+TITLE: TargetMapLibreGLJS
+REQUIREMENT-ID: spec.global_viewer_portal.TargetMapLibreGLJS
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <notes>Make use of MapeLibre GL JS open-source library
+
+- provides core map and globe visualization software and tile data
+- provides a software base that handles an estimated 99% of this
+  app's needs"</notes>
+    <context>
+      <req_id>spec.global_viewer_portal.TargetMapLibreGLJS</req_id>
+      <title>TargetMapLibreGLJS</title>
+    </context>
+  </specification>
+</specification_set>
