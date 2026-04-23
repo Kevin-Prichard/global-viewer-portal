@@ -1,0 +1,3 @@
+-e git+ssh://git@github.com-Kevin-Prichard/Kevin-Prichard/libspec.git@656dc4e346095cdad50ac7cd243dcb3f775d33db#egg=libspec
+lxml==6.1.0
+setuptools==82.0.1

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Viewer Portal - Thucy Aero</title>
+
+    <!-- RQ0: MapLibre GL JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+
+    <!-- RQ2: Babel and core-js for ECMAScript transpilation/polyfilling -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/polyfill@7.12.1/dist/polyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/core-js@3.26.1/bundle.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        #map-container {
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            font-size: 12px;
+        }
+
+        .control-panel h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .control-panel .info-row {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .control-panel .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .control-panel button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .control-panel button:hover {
+            background: #0056b3;
+        }
+
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="map-container">
+        <div id="map"></div>
+        <div id="loading" class="loading-indicator">
+            <div>Initializing Global Viewer Portal...</div>
+            <div class="spinner"></div>
+        </div>
+        <div id="controls" class="control-panel" style="display: none;">
+            <h3>Portal Status</h3>
+            <div class="info-row">
+                <strong>Visitor ID:</strong>
+                <div id="visitor-id" style="font-family: monospace; word-break: break-all;"></div>
+            </div>
+            <div class="info-row">
+                <strong>Longitude:</strong>
+                <div id="longitude-display"></div>
+            </div>
+            <div class="info-row">
+                <strong>Latitude:</strong>
+                <div id="latitude-display"></div>
+            </div>
+            <div class="info-row">
+                <strong>Altitude (m):</strong>
+                <div id="altitude-display"></div>
+            </div>
+            <button id="reset-btn">Reset to Default Location</button>
+            <button id="clear-cookies-btn">Clear Cookies</button>
+        </div>
+    </div>
+
+    <script>
+        // RQ1: Single HTML file with embedded ECMAScript
+        // RQ0: MapLibre GL JS integration
+        // RQ2: ECMAScript compatible code
+
+        /**
+         * GlobalViewerPortalState - Data model for storing user session state
+         */
+        class GlobalViewerPortalState {
+            constructor(longitude = -122.4192398965667, latitude = 37.77929461695388, altitude_m = 100, base_map = 'OpenStreetMap') {
+                this.longitude = longitude;
+                this.longitude_note = "The user's view portal's center point longitude in decimal form";
+                this.latitude = latitude;
+                this.latitude_note = "The user's view portal's center point latitude in decimal form";
+                this.altitude_m = altitude_m;
+                this.altitude_m_note = "The user's portal altitude from earth mean surface level";
+                this.base_map = base_map;
+            }
+
+            model_name() {
+                return "globe-viewer-state";
+            }
+
+            toJSON() {
+                return {
+                    longitude: this.longitude,
+                    longitude_note: this.longitude_note,
+                    latitude: this.latitude,
+                    latitude_note: this.latitude_note,
+                    altitude_m: this.altitude_m,
+                    altitude_m_note: this.altitude_m_note,
+                    base_map: this.base_map
+                };
+            }
+
+            static fromJSON(json) {
+                const state = new GlobalViewerPortalState();
+                Object.assign(state, json);
+                return state;
+            }
+        }
+
+        /**
+         * Cookie management utilities
+         */
+        const CookieManager = {
+            set: function(name, value, days = 365) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                const expires = "expires=" + date.toUTCString();
+                document.cookie = name + "=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+            },
+
+            get: function(name) {
+                const nameEQ = name + "=";
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.indexOf(nameEQ) === 0) {
+                        return decodeURIComponent(cookie.substring(nameEQ.length));
+                    }
+                }
+                return null;
+            },
+
+            delete: function(name) {
+                this.set(name, "", -1);
+            },
+
+            exists: function(name) {
+                return this.get(name) !== null;
+            }
+        };
+
+        /**
+         * Portal state management and rendering
+         */
+        class GlobalViewerPortal {
+            constructor() {
+                this.map = null;
+                this.state = null;
+                this.isFirstVisit = false;
+            }
+
+            /**
+             * OnFirstVisit feature (RQ1 requirement)
+             * 1. Generate GLOBAL_VIEWER_UUID cookie with UUID
+             * 2. Generate GLOBAL_VIEWER_STATE cookie with JSON-encoded state
+             * 3. Initialize portal display
+             */
+            onFirstVisit() {
+                this.isFirstVisit = true;
+
+                // Generate UUID v4
+                const uuid = this.generateUUID();
+                CookieManager.set('GLOBAL_VIEWER_UUID', uuid);
+
+                // Create initial state
+                this.state = new GlobalViewerPortalState();
+                const stateJson = JSON.stringify(this.state.toJSON());
+                const encodedState = encodeURIComponent(stateJson);
+                CookieManager.set('GLOBAL_VIEWER_STATE', encodedState);
+
+                console.log('First visit detected. Generated UUID:', uuid);
+                this.onVisit();
+            }
+
+            /**
+             * OnReturnVisit feature
+             * 1. Check for GLOBAL_VIEWER_UUID and restore GLOBAL_VIEWER_STATE
+             * 2. Perform OnVisit steps
+             */
+            onReturnVisit() {
+                const uuid = CookieManager.get('GLOBAL_VIEWER_UUID');
+                const encodedState = CookieManager.get('GLOBAL_VIEWER_STATE');
+
+                if (uuid && encodedState) {
+                    try {
+                        const stateJson = decodeURIComponent(encodedState);
+                        const stateData = JSON.parse(stateJson);
+                        this.state = GlobalViewerPortalState.fromJSON(stateData);
+                        console.log('Return visit detected. Restored UUID:', uuid);
+                    } catch (e) {
+                        console.error('Failed to restore state:', e);
+                        this.state = new GlobalViewerPortalState();
+                    }
+                } else {
+                    this.state = new GlobalViewerPortalState();
+                }
+
+                this.onVisit();
+            }
+
+            /**
+             * OnVisit feature
+             * Load MapLibre GL JS, initialize map/globe portal with stored state
+             */
+            onVisit() {
+                this.initializeMap();
+            }
+
+            /**
+             * OnVisitTermination feature
+             * Save current state to GLOBAL_VIEWER_STATE cookie and cleanup
+             */
+            onVisitTermination() {
+                if (this.state && this.map) {
+                    // Update state from current map center
+                    const center = this.map.getCenter();
+                    this.state.longitude = center.lng;
+                    this.state.latitude = center.lat;
+                    this.state.altitude_m = this.getAltitudeFromZoom(this.map.getZoom());
+
+                    // Save to cookie
+                    const stateJson = JSON.stringify(this.state.toJSON());
+                    const encodedState = encodeURIComponent(stateJson);
+                    CookieManager.set('GLOBAL_VIEWER_STATE', encodedState);
+                    console.log('State saved before closing');
+                }
+
+                // Cleanup MapLibre resources
+                if (this.map) {
+                    this.map.remove();
+                    console.log('MapLibre GL resources cleaned up');
+                }
+            }
+
+            initializeMap() {
+                // Create map container
+                const mapContainer = document.getElementById('map');
+                if (!mapContainer) {
+                    console.error('Map container not found');
+                    return;
+                }
+
+                try {
+                    // Initialize MapLibre GL map
+                    this.map = new maplibregl.Map({
+                        container: mapContainer,
+                        style: 'https://demotiles.maplibre.org/style.json',
+                        center: [this.state.longitude, this.state.latitude],
+                        zoom: this.getZoomFromAltitude(this.state.altitude_m),
+                        pitch: 0,
+                        bearing: 0
+                    });
+
+                    // Add navigation controls
+                    this.map.addControl(new maplibregl.NavigationControl());
+
+                    // Update display when map moves
+                    this.map.on('moveend', () => {
+                        this.updateControlPanel();
+                    });
+
+                    this.map.on('zoomend', () => {
+                        this.updateControlPanel();
+                    });
+
+                    // Hide loading, show controls
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('controls').style.display = 'block';
+                        this.updateControlPanel();
+
+                        // Setup event listeners for control panel
+                        document.getElementById('reset-btn').addEventListener('click', () => {
+                            this.resetToDefault();
+                        });
+
+                        document.getElementById('clear-cookies-btn').addEventListener('click', () => {
+                            this.clearAllCookies();
+                        });
+                    }, 500);
+
+                    console.log('MapLibre GL map initialized successfully');
+                } catch (e) {
+                    console.error('Failed to initialize map:', e);
+                    document.getElementById('loading').innerHTML = '<div style="color: red;">Error initializing map. Please refresh.</div>';
+                }
+            }
+
+            updateControlPanel() {
+                const center = this.map.getCenter();
+                document.getElementById('longitude-display').textContent = center.lng.toFixed(6);
+                document.getElementById('latitude-display').textContent = center.lat.toFixed(6);
+                document.getElementById('altitude-display').textContent = this.getAltitudeFromZoom(this.map.getZoom()).toFixed(2);
+
+                const uuid = CookieManager.get('GLOBAL_VIEWER_UUID');
+                if (uuid) {
+                    document.getElementById('visitor-id').textContent = uuid;
+                }
+            }
+
+            resetToDefault() {
+                this.state = new GlobalViewerPortalState();
+                this.map.flyTo({
+                    center: [this.state.longitude, this.state.latitude],
+                    zoom: this.getZoomFromAltitude(this.state.altitude_m),
+                    duration: 2000
+                });
+            }
+
+            clearAllCookies() {
+                CookieManager.delete('GLOBAL_VIEWER_UUID');
+                CookieManager.delete('GLOBAL_VIEWER_STATE');
+                this.resetToDefault();
+                console.log('All cookies cleared');
+            }
+
+            generateUUID() {
+                // UUID v4 generation
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            /**
+             * Convert zoom level to approximate altitude in meters
+             * Based on MapLibre GL zoom level to ground distance mapping
+             */
+            getAltitudeFromZoom(zoom) {
+                // Approximate conversion: altitude ≈ 40075000 / (2^(zoom+8)) meters
+                return 40075000 / Math.pow(2, zoom + 8);
+            }
+
+            /**
+             * Convert altitude in meters to approximate zoom level
+             */
+            getZoomFromAltitude(altitude) {
+                // Inverse calculation
+                if (altitude <= 0) return 20;
+                return Math.log2(40075000 / altitude) - 8;
+            }
+        }
+
+        /**
+         * Initialize portal when DOM is ready
+         */
+        let portal = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            portal = new GlobalViewerPortal();
+
+            // Check if this is a first visit or return visit
+            if (!CookieManager.exists('GLOBAL_VIEWER_UUID')) {
+                portal.onFirstVisit();
+            } else {
+                portal.onReturnVisit();
+            }
+        });
+
+        /**
+         * OnVisitTermination: Save state before closing window/tab
+         */
+        window.addEventListener('beforeunload', function() {
+            if (portal) {
+                portal.onVisitTermination();
+            }
+        });
+
+        // Also handle page visibility change for better cleanup
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && portal) {
+                portal.onVisitTermination();
+            }
+        });
+    </script>
+</body>
+</html>
