@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Viewer Portal</title>
+
+  <!--
+    RQ0: Make use of MapLibre GL JS
+    RQ3: specify-mimetype-for-cdn-scripts — all CDN <script> tags carry type="text/javascript"
+
+    MapLibre GL JS 5.x (>=5.0.0) ships the actual globe renderer.
+    4.x only registered the "globe" enum — zero rendering code existed there.
+
+    Critical fix vs index006:
+      map.setProjection({type:'globe'}) calls style._checkLoaded() internally and
+      THROWS "Style is not done loading" if called before the 'load' event.
+      Calling it right after new Map() therefore silently fails.
+
+      The correct approach is one of:
+        A) Call map.setProjection() inside map.once('load', ...) — AFTER style loads.
+        B) Fetch the style JSON, inject projection:{type:'globe'}, pass the object.
+
+      This file uses approach A (simplest, no extra fetch):
+        - new Map() with the vector style URL (no projection option)
+        - Inside map.once('load'):  map.setProjection({type:'globe'})
+        - Then apply satellite overlay (if needed)
+  -->
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
+  <script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+
+  <!-- RQ2: target-compatible-ecmascript — core-js polyfills for broad compatibility -->
+  <script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/core-js-bundle@3.38.1/minified.js"></script>
+
+  <style>
+    :root {
+      --panel-bg:   rgba(255,255,255,0.93);
+      --panel-fg:   #111;
+      --accent:     #1769e0;
+      --error:      #c62828;
+      --brand-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body, #app, #map {
+      width: 100%;
+      height: 100%;
+      font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #app { position: relative; background: #0b1020; }
+
+    /* ── brand watermark bars ───────────────────────────────────── */
+    .brand-bar {
+      position: absolute; left: 0; width: 100%; z-index: 8;
+      pointer-events: none; text-align: center;
+      font-family: var(--brand-font);
+      font-size: clamp(0.7rem, 2vw, 1.15rem);
+      font-weight: 800; letter-spacing: 0.35em; text-transform: uppercase;
+      color: rgba(255,255,255,0.90);
+      text-shadow: 0 0 12px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.70);
+      padding: 0.55rem 1rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 100%);
+    }
+    .brand-bar.top    { top: 0; }
+    .brand-bar.bottom {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    /* ── control panel ──────────────────────────────────────────── */
+    #panel {
+      position: absolute; z-index: 5; right: 1rem; top: 2.8rem;
+      width: min(340px, calc(100% - 2rem));
+      background: var(--panel-bg); color: var(--panel-fg);
+      border-radius: 0.5rem; box-shadow: 0 8px 26px rgba(0,0,0,.35);
+      padding: 0.85rem; backdrop-filter: blur(4px);
+    }
+    #panel h1 { font-size: 1rem; margin-bottom: 0.5rem; }
+    #panel .meta { font-size: 0.78rem; margin-bottom: 0.6rem; opacity: 0.75; word-break: break-all; }
+    #panel dl {
+      display: grid; grid-template-columns: auto 1fr;
+      gap: 0.3rem 0.6rem; font-size: 0.82rem; margin-bottom: 0.6rem;
+    }
+    #panel dt { font-weight: 600; }
+    #panel dd  { text-align: right; }
+    #panel .map-selector { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.7rem; }
+    #panel .map-selector label { font-size: 0.78rem; font-weight: 600; }
+    #panel select {
+      width: 100%; padding: 0.35rem 0.5rem; border: 1px solid #ccc;
+      border-radius: 0.3rem; font-size: 0.82rem; background: #fff; cursor: pointer;
+    }
+    #panel .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    #panel button {
+      border: none; border-radius: 0.35rem; background: var(--accent);
+      color: #fff; padding: 0.45rem 0.7rem; font-size: 0.8rem; cursor: pointer;
+    }
+    #panel button.secondary { background: #6f7785; }
+    #panel button:hover     { filter: brightness(1.15); }
+
+    /* ── status bar ─────────────────────────────────────────────── */
+    #status {
+      position: absolute; z-index: 6; left: 1rem; bottom: 2.6rem;
+      background: rgba(0,0,0,.65); color: #fff;
+      padding: 0.5rem 0.7rem; border-radius: 0.35rem;
+      font-size: 0.8rem; max-width: min(480px, calc(100% - 2rem));
+      pointer-events: none;
+    }
+    #status.is-error { background: var(--error); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <!-- RQ1: one-source-html-file — all markup, style and ECMAScript in one file -->
+  <div id="app">
+    <div id="map" aria-label="Global map portal"></div>
+    <div class="brand-bar top"    aria-hidden="true">THUCYDIDES AEROSPACE</div>
+    <div class="brand-bar bottom" aria-hidden="true">THUCYDIDES AEROSPACE</div>
+
+    <section id="panel" aria-live="polite">
+      <h1>Global Viewer Portal</h1>
+      <div class="meta">Visitor UUID: <span id="uuidValue">(initializing…)</span></div>
+      <dl>
+        <dt>Longitude</dt>   <dd id="longitudeValue">—</dd>
+        <dt>Latitude</dt>    <dd id="latitudeValue">—</dd>
+        <dt>Altitude (m)</dt><dd id="altitudeValue">—</dd>
+      </dl>
+
+      <div class="map-selector">
+        <label for="baseMapSelect">Base Map</label>
+        <select id="baseMapSelect">
+          <option value="satellite-roads">Satellite + Roads (Esri)</option>
+          <option value="liberty">Street Map — Liberty (OpenFreeMap)</option>
+          <option value="bright">Street Map — Bright (OpenFreeMap)</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button id="resetViewBtn" type="button">Reset Default View</button>
+        <button id="saveNowBtn"   type="button" class="secondary">Save State</button>
+      </div>
+    </section>
+
+    <div id="status" role="status">Loading portal…</div>
+  </div>
+
+  <!--
+    RQ1: one-source-html-file
+    RQ2: target-compatible-ecmascript (ES5-compatible — no transpiler needed)
+    RQ4: specify-numbered-output-filenames — this file is index007.html
+  -->
+  <script type="text/javascript">
+  (function () {
+    'use strict';
+
+    /* ── constants ──────────────────────────────────────────────── */
+    var COOKIE_UUID  = 'GLOBAL_VIEWER_UUID';
+    var COOKIE_STATE = 'GLOBAL_VIEWER_STATE';
+
+    /*
+     * Base map strategy
+     * -----------------
+     * Globe rendering requires a VECTOR tile style (for sphere geometry).
+     * For satellite-roads: we load a vector base, then in the 'load' handler:
+     *   1. call map.setProjection({type:'globe'})   ← must be AFTER load
+     *   2. strip all non-atmosphere vector layers
+     *   3. inject Esri satellite + roads raster layers
+     *
+     * For liberty/bright: same but skip step 2-3.
+     *
+     * setProjection() MUST be called inside the 'load' callback — it calls
+     * style._checkLoaded() which throws if the style is not yet loaded.
+     * Calling it before 'load' (as in index005/006) silently does nothing or throws.
+     */
+    var LIBERTY_URL = 'https://tiles.openfreemap.org/styles/liberty';
+    var BRIGHT_URL  = 'https://tiles.openfreemap.org/styles/bright';
+
+    var BASE_MAPS = {
+      'satellite-roads': { label: 'Satellite + Roads (Esri)',          styleUrl: LIBERTY_URL, satellite: true  },
+      'liberty':         { label: 'Street Map — Liberty (OpenFreeMap)', styleUrl: LIBERTY_URL, satellite: false },
+      'bright':          { label: 'Street Map — Bright (OpenFreeMap)',  styleUrl: BRIGHT_URL,  satellite: false }
+    };
+
+    var DEFAULT_BASE_MAP = 'satellite-roads';
+
+    /* ── default portal state (matches spec context block) ──────── */
+    var DEFAULTS = {
+      longitude:       -122.4192398965667,
+      longitude_note:  "The user's view portal's center point longitude in decimal form",
+      latitude:        37.77929461695388,
+      latitude_note:   "The user's view portal's center point latitude in decimal form",
+      altitude_m:      5000000,   /* start zoomed out to see the full globe */
+      altitude_m_note: "The user's portal altitude from earth mean surface level",
+      base_map:        DEFAULT_BASE_MAP
+    };
+
+    /* ─────────────────────────────────────────────────────────────
+     * GlobalViewerPortalState — DATA-MODEL: globe-viewer-state
+     * Fields: longitude, longitude_note, latitude, latitude_note,
+     *         altitude_m, altitude_m_note, base_map
+     * ────────────────────────────────────────────────────────────*/
+    function GlobalViewerPortalState(data) {
+      data = data || {};
+      this.longitude       = isFinite(data.longitude)  ? +data.longitude  : DEFAULTS.longitude;
+      this.longitude_note  = data.longitude_note  || DEFAULTS.longitude_note;
+      this.latitude        = isFinite(data.latitude)   ? +data.latitude   : DEFAULTS.latitude;
+      this.latitude_note   = data.latitude_note   || DEFAULTS.latitude_note;
+      this.altitude_m      = isFinite(data.altitude_m) ? +data.altitude_m : DEFAULTS.altitude_m;
+      this.altitude_m_note = data.altitude_m_note || DEFAULTS.altitude_m_note;
+      this.base_map        = BASE_MAPS[data.base_map]  ? data.base_map    : DEFAULTS.base_map;
+    }
+
+    GlobalViewerPortalState.prototype.toJSON = function () {
+      return {
+        longitude:       this.longitude,
+        longitude_note:  this.longitude_note,
+        latitude:        this.latitude,
+        latitude_note:   this.latitude_note,
+        altitude_m:      this.altitude_m,
+        altitude_m_note: this.altitude_m_note,
+        base_map:        this.base_map
+      };
+    };
+
+    /* ── CookieStore ────────────────────────────────────────────── */
+    var CookieStore = {
+      setRaw: function (name, val, days) {
+        days = (days === undefined) ? 365 : days;
+        var exp = new Date(Date.now() + days * 86400000).toUTCString();
+        document.cookie = name + '=' + val + '; expires=' + exp + '; path=/; SameSite=Lax';
+      },
+      getRaw: function (name) {
+        if (!document.cookie) return null;
+        var pfx = name + '=', pairs = document.cookie.split('; ');
+        for (var i = 0; i < pairs.length; i++)
+          if (pairs[i].indexOf(pfx) === 0) return pairs[i].slice(pfx.length);
+        return null;
+      }
+    };
+
+    /* ── helpers ────────────────────────────────────────────────── */
+    function altitudeFromZoom(z) { return 40075000 / Math.pow(2, z + 8); }
+    function zoomFromAltitude(a) { return (!isFinite(a) || a <= 0) ? 2 : Math.max(1.0, Math.log2(40075000 / a) - 8); }
+
+    function createUUID() {
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    function el(id) { return document.getElementById(id); }
+
+    function setStatus(msg, isError) {
+      var n = el('status');
+      n.textContent = msg;
+      n.classList.toggle('is-error', !!isError);
+    }
+
+    function updatePanel(state, map) {
+      var lng = state.longitude, lat = state.latitude, alt = state.altitude_m;
+      if (map) { var c = map.getCenter(); lng = c.lng; lat = c.lat; alt = altitudeFromZoom(map.getZoom()); }
+      el('longitudeValue').textContent = lng.toFixed(6);
+      el('latitudeValue').textContent  = lat.toFixed(6);
+      el('altitudeValue').textContent  = alt.toFixed(2);
+    }
+
+    /* ── state cookie ───────────────────────────────────────────── */
+    function persistState(state) {
+      /* Spec-required encoding: encodeURIComponent(JSON.stringify(state)) */
+      CookieStore.setRaw(COOKIE_STATE, encodeURIComponent(JSON.stringify(state.toJSON())));
+    }
+
+    function restoreState() {
+      var raw = CookieStore.getRaw(COOKIE_STATE);
+      if (!raw) return new GlobalViewerPortalState();
+      try {
+        /* Spec-required decoding: JSON.parse(decodeURIComponent(cookieValue)) */
+        return new GlobalViewerPortalState(JSON.parse(decodeURIComponent(raw)));
+      } catch (e) {
+        console.error('[portal] state parse failed; using defaults.', e);
+        return new GlobalViewerPortalState();
+      }
+    }
+
+    /*
+     * applySatelliteOverlay(map)
+     *
+     * Called AFTER setProjection so the vector style infrastructure is still
+     * intact (globe geometry needs it) but all visual vector layers are
+     * replaced by Esri raster tiles.
+     *
+     * 'background' and 'sky' layers are preserved — background provides the
+     * globe's dark space colour, sky provides the atmospheric halo.
+     */
+    function applySatelliteOverlay(map) {
+      var layers = map.getStyle().layers || [];
+
+      /* Collect all non-atmosphere layer IDs to remove */
+      var toRemove = [];
+      for (var i = 0; i < layers.length; i++) {
+        var t = layers[i].type;
+        if (t !== 'background' && t !== 'sky') toRemove.push(layers[i].id);
+      }
+      for (var j = 0; j < toRemove.length; j++) {
+        try { map.removeLayer(toRemove[j]); } catch(e) { /* already gone */ }
+      }
+
+      /* Add Esri raster sources */
+      if (!map.getSource('esri-satellite')) {
+        map.addSource('esri-satellite', {
+          type: 'raster', tileSize: 256,
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+          attribution: 'Esri, DigitalGlobe, GeoEye, USDA FSA, USGS and the GIS User Community'
+        });
+      }
+      if (!map.getSource('esri-roads')) {
+        map.addSource('esri-roads', {
+          type: 'raster', tileSize: 256,
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'],
+          attribution: 'Esri, HERE, DeLorme, © OpenStreetMap contributors'
+        });
+      }
+
+      /* Insert below any sky layer so atmospheric halo renders on top */
+      var skyId = null;
+      for (var k = 0; k < layers.length; k++) {
+        if (layers[k].type === 'sky') { skyId = layers[k].id; break; }
+      }
+
+      if (skyId) {
+        map.addLayer({ id: 'esri-satellite-layer', type: 'raster', source: 'esri-satellite' }, skyId);
+        map.addLayer({ id: 'esri-roads-layer',     type: 'raster', source: 'esri-roads'     }, skyId);
+      } else {
+        map.addLayer({ id: 'esri-satellite-layer', type: 'raster', source: 'esri-satellite' });
+        map.addLayer({ id: 'esri-roads-layer',     type: 'raster', source: 'esri-roads'     });
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+     * Portal bootstrap
+     * ────────────────────────────────────────────────────────────*/
+    function bootPortal() {
+      var state, map = null, terminationRan = false;
+
+      /* ── OnFirstVisit / OnReturnVisit ───────────────────────── */
+      var existingUUID = CookieStore.getRaw(COOKIE_UUID);
+
+      if (!existingUUID) {
+        /* OnFirstVisit:
+           1. Generate GLOBAL_VIEWER_UUID cookie (UUID)
+           2. Generate GLOBAL_VIEWER_STATE cookie (URI-encoded JSON)
+           3. Call OnVisit                                            */
+        var newUUID = createUUID();
+        CookieStore.setRaw(COOKIE_UUID, newUUID);
+        state = new GlobalViewerPortalState();
+        persistState(state);
+        el('uuidValue').textContent = newUUID;
+        setStatus('First visit — loading globe portal…');
+      } else {
+        /* OnReturnVisit:
+           1. Restore GLOBAL_VIEWER_STATE into GlobalViewerPortalState
+           2. Call OnVisit                                            */
+        state = restoreState();
+        el('uuidValue').textContent = existingUUID;
+        setStatus('Welcome back — restoring portal…');
+      }
+
+      el('baseMapSelect').value = state.base_map;
+
+      /* ── OnVisit: initialise MapLibre GL JS ─────────────────── */
+      if (!window.maplibregl) {
+        setStatus('MapLibre GL JS failed to load — check network connection.', true);
+        return;
+      }
+
+      function buildMap(key) {
+        var bm = BASE_MAPS[key] || BASE_MAPS[DEFAULT_BASE_MAP];
+
+        /*
+         * Create the map with the vector style URL.
+         * Do NOT call setProjection here — style._checkLoaded() will throw.
+         * Globe projection is activated inside the 'load' handler below.
+         */
+        map = new maplibregl.Map({
+          container:          'map',
+          style:              bm.styleUrl,
+          center:             [state.longitude, state.latitude],
+          zoom:               zoomFromAltitude(state.altitude_m),
+          pitch:              0,
+          bearing:            0,
+          attributionControl: true
+        });
+
+        map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
+        map.addControl(new maplibregl.ScaleControl(), 'bottom-right');
+
+        map.once('load', function () {
+          /*
+           * ── CRITICAL ORDER ──────────────────────────────────────
+           * 1. setProjection FIRST — style is now loaded, call succeeds.
+           * 2. applySatelliteOverlay AFTER — strips vector layers and injects
+           *    Esri raster tiles.  Must come after setProjection so the globe
+           *    transform is already applied when layers are added.
+           * ────────────────────────────────────────────────────────
+           */
+          map.setProjection({ type: 'globe' });
+
+          if (bm.satellite) {
+            applySatelliteOverlay(map);
+          }
+
+          setStatus('Portal ready — drag to rotate the globe; state is saved on close.');
+          updatePanel(state, map);
+        });
+
+        map.on('moveend', function () {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+          updatePanel(state, map);
+        });
+
+        map.on('error', function (e) {
+          console.error('[maplibre]', e.error);
+          setStatus('Map error: ' + (e.error && e.error.message ? e.error.message : 'unknown'), true);
+        });
+      }
+
+      buildMap(state.base_map);
+
+      /* ── base map switcher ──────────────────────────────────── */
+      el('baseMapSelect').addEventListener('change', function () {
+        var chosen = this.value;
+        if (!BASE_MAPS[chosen]) return;
+
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+          map.remove();
+          map = null;
+        }
+
+        state.base_map = chosen;
+        persistState(state);
+        setStatus('Switching to ' + BASE_MAPS[chosen].label + '…');
+        buildMap(chosen);
+      });
+
+      /* ── UI buttons ─────────────────────────────────────────── */
+      el('resetViewBtn').addEventListener('click', function () {
+        var savedBaseMap = state.base_map;
+        state = new GlobalViewerPortalState();
+        state.base_map = savedBaseMap;
+        if (map) {
+          map.flyTo({
+            center:    [state.longitude, state.latitude],
+            zoom:      zoomFromAltitude(state.altitude_m),
+            essential: true,
+            duration:  1400
+          });
+        }
+        persistState(state);
+        updatePanel(state, null);
+        setStatus('Reset to default view.');
+      });
+
+      el('saveNowBtn').addEventListener('click', function () {
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+        }
+        persistState(state);
+        setStatus('State saved to GLOBAL_VIEWER_STATE cookie.');
+      });
+
+      /* ── OnVisitTermination ─────────────────────────────────── */
+      function onVisitTermination() {
+        if (terminationRan) return;
+        terminationRan = true;
+
+        /* 1. Write final state to GLOBAL_VIEWER_STATE */
+        if (map) {
+          var c = map.getCenter();
+          state.longitude  = c.lng;
+          state.latitude   = c.lat;
+          state.altitude_m = altitudeFromZoom(map.getZoom());
+        }
+        persistState(state);
+
+        /* 2. Shut down MapLibre: remove() releases WebGL context + all listeners */
+        if (map) { map.remove(); map = null; }
+      }
+
+      window.addEventListener('beforeunload', onVisitTermination);
+      window.addEventListener('pagehide',     onVisitTermination); /* mobile/bfcache */
+    }
+
+    /* Wait for the DOM before touching any element IDs */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootPortal);
+    } else {
+      bootPortal();
+    }
+
+  }());
+  </script>
+
+  <!-- RQ4: specify-numbered-output-filenames — artifact index007.html -->
+</body>
+</html>
