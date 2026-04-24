@@ -15,7 +15,7 @@ class GlobalViewerPortalState(DataSchema):
     latitude_note: str = "The user's view portal's center point latitude in decimal form"
     altitude_m: float = 100
     altitude_m_note: str = "The user's portal altitude from earth mean surface level"
-    base_map: str  # the base map tile set name from upstream provider
+    base_map: str = 'satellite-roads'  # the base map tile set name from upstream provider
 
     def model_name(self):
         return "globe-viewer-state"
@@ -65,6 +65,27 @@ class SpecifyIncrementalOutputFilename(Requirement):
     def action(self):  return "When writing generated index.html, use the format index%03d.html and increment the number each time, so that previous versions are preserved."
     def benefit(self): return "Ensure this web app runs when using CDN-loaded resources"
 
+class MapLibreGlobeProjection(Requirement):
+    def req_id(self):  return "RQ5"
+    def title(self):   return "globe-projection"
+    def actor(self):   return "LLM"
+    def action(self):  return "Use MapLibre GL JS >= 5.0.0 and call map.setProjection({type:'globe'}) inside the map load event."
+    def benefit(self): return "Provides a 3D globe visualization instead of a flat 2D map."
+
+class SupportPMTiles(Requirement):
+    def req_id(self):  return "RQ6"
+    def title(self):   return "support-pmtiles"
+    def actor(self):   return "LLM"
+    def action(self):  return "Load the pmtiles.js library via CDN and register the 'pmtiles://' protocol with maplibregl."
+    def benefit(self): return "Allows rendering single-file PMTiles map tile archives."
+
+class SupportCloudOptimizedGeoTIFF(Requirement):
+    def req_id(self):  return "RQ7"
+    def title(self):   return "support-cog"
+    def actor(self):   return "LLM"
+    def action(self):  return "Load geotiff.js via CDN and implement a custom 'cog://' protocol handler that downloads, normalizes, and color-maps GeoTIFF windows on-the-fly to XYZ canvas blobs."
+    def benefit(self): return "Enables direct-in-browser rendering of massive remote sensing raster files without a backend server."
+
 
 ## --- FEATURES ---
 DATE_VER_0_0_0 = "2026-04-22"
@@ -95,3 +116,28 @@ class OnReturnVisit(Feature):
     def feature_name(self): return "on-return-visit"
     def date(self):         return DATE_VER_0_0_0
     def description(self): return """1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE restore its encoded values to the GlobalViewerPortalState instance. 2. Perform the steps in OnVisit(Feature) to intialize the portal display"""
+
+class WatermarkBranding(Feature):
+    def feature_name(self): return "watermark-branding"
+    def date(self):         return DATE_VER_0_0_0
+    def description(self):  return """Add translucent 'THUCYDIDES AEROSPACE' watermark bars locked to the top and bottom of the app layout window."""
+
+class ControlPanelUI(Feature):
+    def feature_name(self): return "control-panel-ui"
+    def date(self):         return DATE_VER_0_0_0
+    def description(self):  return """Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state)."""
+
+class StatusBarUI(Feature):
+    def feature_name(self): return "status-bar-ui"
+    def date(self):         return DATE_VER_0_0_0
+    def description(self):  return """Provide a floating status bar in the bottom-left corner to show portal loading logs, errors, and interaction status messages."""
+
+class BaseMapSelection(Feature):
+    def feature_name(self): return "base-map-selection"
+    def date(self):         return DATE_VER_0_0_0
+    def description(self):  return """Add a dropdown to the control panel allowing the user to select between 'Satellite + Roads (Esri)', 'Street Map — Liberty', and 'Street Map — Bright'. When switched, tear down and rebuild the map state retaining the camera viewport."""
+
+class CustomDataOverlay(Feature):
+    def feature_name(self): return "custom-data-overlay"
+    def date(self):         return DATE_VER_0_0_0
+    def description(self):  return """Add an 'Overlay' section to the control panel where users can paste a custom map URL (XYZ, pmtiles://, or cog://), toggle its visibility on/off via a switch, and adjust its transparency using a 0-100% opacity slider."""

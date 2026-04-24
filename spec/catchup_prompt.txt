@@ -1,0 +1,9 @@
+The development cycle for this repository is based around libspec (drhodes's python package), where the developer writes a specification using Python classes that extend libspec base classes Requirement, Feature, Constraint, DataSchema.  Then the developer generates an XML version of the spec, hands that off to Copilot to generate and/or modify code.
+
+In this repo the spec is spec/global_viewer_portal.py, and the XML files are under spec-build/spec-*.xml, and the Copilot/LLM-generated outputs are index.html, then index001.html, each superseded until the current versioned file is index008.html.
+
+What has happened in this repo is that additional modifications to the index00x.html files were produced by asking Copilot directly for modifications and new code, bypassing the normal cycle of developer extending the spec (spec/global_viewer_portal.py), generating a new XML, and using that to perform modifications.
+
+I need you to catch up spec/global_viewer_portal.py by comparing it with index008.html to discover the modifications and additional features added, and accordingly modifying the spec to match, adding new classes if necessary.
+
+Ignore the previous index*.html files.  Only focus on index008.html and spec/global_viewer_portal.py to produce the modifications.
