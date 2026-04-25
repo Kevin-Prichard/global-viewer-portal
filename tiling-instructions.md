@@ -117,4 +117,38 @@ gdal2tiles.py \
   ./tiles/
 
 
+# Must run the SPA from localhost and specify the tiles format URL as follows:
+http://localhost:8000/index009.html
 http://localhost:8000/tiles/{z}/{x}/{y}.png
+
+
+# The last run which functioned 24 April 2026
+# 1. Crop to Moscow metro area, project to 4326, reduce values to byte-sized
+gdal_translate \
+    -ot Byte \
+    -of GTiff \
+    -projwin_srs EPSG:4326 \
+    -projwin 37.05557480995671 56.06414845228367 \
+             38.4739442000234 55.31603441970138 \
+    data/rus_pop_2026_CN_100m_R2025A_v1.tif \
+    data/tmp-moscow-metro-ru-espg4326.tif
+
+# 2. Generate color-relief version
+gdaldem color-relief \
+   data/tmp-moscow-metro-ru-espg4326.tif \
+   colors2.txt \
+   data/tmp-moscow-metro-ru-espg4326-colored2.tif
+
+# 3. Reproject to Web Mercator
+gdalwarp \
+   -t_srs EPSG:3857 \
+   -r bilinear \
+   data/tmp-moscow-metro-ru-espg4326-colored2.tif \
+   data/tmp-moscow-metro-ru-espg3857-colored2-warped.tif
+
+# 4. Generate XYZ tiles
+gdal2tiles.py \
+   --xyz \
+   -z 0-10 \
+   data/tmp-moscow-metro-ru-espg3857-colored2-warped.tif \
+   ./tiles/
