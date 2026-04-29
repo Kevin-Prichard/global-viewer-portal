@@ -11,7 +11,7 @@ class GlobalViewerPortalState(DataSchema):
     longitude_note: str = "The user's view portal's center point longitude in decimal form"
     latitude: float = 37.77929461695388
     latitude_note: str = "The user's view portal's center point latitude in decimal form"
-    altitude_m: float = 100
+    altitude_m: float = 5000000
     altitude_m_note: str = "The user's portal altitude from earth mean surface level"
     base_map: str = 'satellite-roads'  # the base map tile set name from upstream provider
 
@@ -65,9 +65,8 @@ class SupportPMTiles(Req):
 
 class SupportCloudOptimizedGeoTIFF(Req):
     def actor(self):   return "LLM"
-    def action(self):  return "Load geotiff.js via CDN and implement a custom 'cog://' protocol handler that downloads, normalizes, and color-maps GeoTIFF windows on-the-fly to XYZ canvas blobs."
-    def benefit(self): return "Enables direct-in-browser rendering of massive remote sensing raster files without a backend server."
-
+    def action(self):  return "Load geotiff.js via CDN and implement a custom 'cog://' protocol handler that downloads, normalizes, and color-maps GeoTIFF windows on-the-fly to XYZ canvas blobs. It should support a '?colormap=' query parameter to apply different manually generated colormaps (e.g. viridis, inferno, plasma, turbo, grey)."
+    def benefit(self): return "Enables direct-in-browser rendering of massive remote sensing raster files without a backend server, with advanced color mapping capabilities."
 
 ## --- FEATURES ---
 
@@ -79,7 +78,7 @@ class _(Feat):
 '''
 
 class OnVisit(Feat):
-    def description(self):  return """When a user opens the site in a web browser, perform all software tasks necessary to load MapLibre GL JS's libraries, set the map/globe view portal up, initialize the portal to the default longitude, latitude and altitude"""
+    def description(self):  return """When a user opens the site in a web browser, perform all software tasks necessary to load MapLibre GL JS's libraries, set the map/globe view portal up, initialize the portal to the default longitude, latitude and altitude. Also include MapLibre GL JS NavigationControl (with pitch visualization) and ScaleControl, and enable tile boundary debugging."""
 
 class OnFirstVisit(Feat):
     def description(self):  return """1. When a user visits for the very first time, generate a cookie called GLOBAL_VIEWER_UUID (containing a UUID) to know that they've visited.  Generate a second cookie named GLOBAL_VIEWER_STATE to contain GlobalViewerPortalState's values, stored as JSON that's been URI-encoded; LLM will provide code that performs the encodeURIComponent(JSON.stringify(GlobalViewerPortalState instance)) and cookie decoding e.g. JSON.parse(decodeURIComponent(cookie value)).  2. Perform the steps in OnVisit(Feature) to intialize the portal display."""
@@ -91,7 +90,7 @@ class OnReturnVisit(Feat):
     def description(self): return """1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE restore its encoded values to the GlobalViewerPortalState instance. 2. Perform the steps in OnVisit(Feature) to intialize the portal display"""
 
 class WatermarkBranding(Feat):
-    def description(self):  return """Add translucent 'CONFIDENTIAL -- THUCYDIDES AEROSPACE -- CONFIDENTIAL' watermark bars locked to the top and bottom of the app layout window."""
+    def description(self):  return """Add translucent 'THUCYDIDES AEROSPACE' watermark bars locked to the top and bottom of the app layout window."""
 
 class ControlPanelUI(Feat):
     def description(self):  return """Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state)."""
@@ -100,7 +99,7 @@ class StatusBarUI(Feat):
     def description(self):  return """Provide a floating status bar in the bottom-left corner to show portal loading logs, errors, and interaction status messages."""
 
 class BaseMapSelection(Feat):
-    def description(self):  return """Add a dropdown to the control panel allowing the user to select between 'Satellite + Roads (Esri)', 'Street Map — Liberty', and 'Street Map — Bright'. When switched, tear down and rebuild the map state retaining the camera viewport."""
+    def description(self):  return """Add a dropdown to the control panel allowing the user to select between 'Satellite + Roads (Esri)', 'Street Map — Liberty', and 'Street Map — Bright'. When switched, tear down and rebuild the map state retaining the camera viewport. For the Satellite option, implement a complex tear-down that strips open-source vector layers while preserving sky layers, and injects ESRI World Imagery and Transportation rasters."""
 
 class CustomDataOverlay(Feat):
     def description(self):  return """Add an 'Overlay' section to the control panel where users can paste a custom map URL (XYZ, pmtiles://, or cog://), toggle its visibility on/off via a switch, and adjust its transparency using a 0-100% opacity slider."""
