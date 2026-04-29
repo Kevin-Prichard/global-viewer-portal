@@ -93,7 +93,13 @@ class WatermarkBranding(Feat):
     def description(self):  return """Add translucent 'THUCYDIDES AEROSPACE' watermark bars locked to the top and bottom of the app layout window."""
 
 class ControlPanelUI(Feat):
-    def description(self):  return """Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state)."""
+    def description(self):  return """Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. When altitude is below 1,000 meters, it's displayed with meters as units. When altitude exceeds 1000m, it displays in km units, with one decimal place of fraction.  Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state)."""
+
+class ControlPanelUISelfHides(Feat):
+    def description(self): return """The control panel box will self-hide after N seconds of no direct user interactivity (no hover, click or drag actions within the panel; interactions with the globe / map won't affect this), minimizing the box to one line: "Lat: x.xxx, Lon: y.yyy, Alt: zm.  When a hover or click occurs on the minimized box, the panel will restore to its normal full display.  The self-hide timeout will be a constant, let's set it to 10 seconds for now."""
+
+class OnViewPositionChange(Feat):
+    def description(self): return """Whenever the user interacts with the portal viewer causing the view position or zoom level to change, this will be reflected in the panel defined in ControlPanelUI."""
 
 class StatusBarUI(Feat):
     def description(self):  return """Provide a floating status bar in the bottom-left corner to show portal loading logs, errors, and interaction status messages."""
