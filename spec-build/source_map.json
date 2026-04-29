@@ -1,17 +1,86 @@
 [
   {
-    "component": "GlobalViewerPortalState",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "GlobalViewerPortalState",
-      "start_line": 10,
-      "end_line": 21
-    },
+    "component": "BaseMapSelection",
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
       "line": 3
     },
     "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 102
+      }
+    ]
+  },
+  {
+    "component": "ControlPanelUI",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 16
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 96
+      }
+    ]
+  },
+  {
+    "component": "CustomDataOverlay",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 29
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 105
+      }
+    ]
+  },
+  {
+    "component": "GlobalViewerPortalState",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 42
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 273
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 277
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 288
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 345
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 348
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 351
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 693
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 815
+      },
       {
         "file": "/callisto/thucy/portal/index.html",
         "line": 148
@@ -45,20 +114,256 @@
         "line": 376
       },
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 10
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 302
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 306
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 317
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 396
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 399
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 402
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 424
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 430
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 508
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 188
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 233
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 254
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 267
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 270
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 274
+      },
+      {
+        "file": "/callisto/thucy/portal/index001.html",
+        "line": 337
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 157
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 168
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 223
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 226
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 229
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 281
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 353
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 248
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 252
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 263
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 342
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 345
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 348
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 370
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 376
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 454
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 201
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 205
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 216
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 280
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 283
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 286
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 360
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 366
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 460
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 185
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 189
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 200
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 284
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 287
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 290
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 312
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 318
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 364
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 192
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 196
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 207
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 271
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 274
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 277
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 342
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 348
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 435
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 87
+        "line": 8
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 92
+        "line": 85
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 97
+        "line": 88
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 91
       },
       {
         "file": "/callisto/thucy/portal/index.html",
@@ -66,77 +371,176 @@
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 21
+        "line": 19
+      }
+    ]
+  },
+  {
+    "component": "MapLibreGlobeProjection",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 81
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 56
       }
     ]
   },
   {
     "component": "OnFirstVisit",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "OnFirstVisit",
-      "start_line": 84,
-      "end_line": 87
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 42
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 101
     },
     "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 686
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 690
+      },
       {
         "file": "/callisto/thucy/portal/index.html",
         "line": 227
       },
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 84
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 414
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 418
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 278
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 360
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 364
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 350
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 354
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 302
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 306
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 332
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 336
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 85
+        "line": 84
       }
     ]
   },
   {
     "component": "OnReturnVisit",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "OnReturnVisit",
-      "start_line": 94,
-      "end_line": 97
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 51
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 114
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 95
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 686
+      },
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 698
       },
       {
         "file": "/callisto/thucy/portal/index.html",
         "line": 250
       },
       {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 414
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 429
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 286
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 360
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 375
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 350
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 365
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 302
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 317
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 332
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 347
+      },
+      {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 94
+        "line": 90
       }
     ]
   },
   {
     "component": "OnVisit",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "OnVisit",
-      "start_line": 79,
-      "end_line": 82
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 60
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 127
     },
     "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 837
+      },
       {
         "file": "/callisto/thucy/portal/index.html",
         "line": 252
@@ -154,8 +558,96 @@
         "line": 436
       },
       {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 421
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 431
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 440
+      },
+      {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 534
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 363
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 367
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 377
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 386
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 480
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 357
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 367
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 375
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 486
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 309
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 319
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 325
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 381
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 339
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 349
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 357
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 461
+      },
+      {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 79
+        "line": 81
+      },
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 85
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
@@ -163,38 +655,21 @@
       },
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 89
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 97
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 80
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 90
+        "line": 91
       }
     ]
   },
   {
     "component": "OnVisitTermination",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "OnVisitTermination",
-      "start_line": 89,
-      "end_line": 92
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 69
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 140
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 90
+        "file": "/callisto/thucy/portal/index008.html",
+        "line": 837
       },
       {
         "file": "/callisto/thucy/portal/index.html",
@@ -205,199 +680,158 @@
         "line": 436
       },
       {
+        "file": "/callisto/thucy/portal/index004.html",
+        "line": 534
+      },
+      {
+        "file": "/callisto/thucy/portal/index005.html",
+        "line": 363
+      },
+      {
+        "file": "/callisto/thucy/portal/index003.html",
+        "line": 480
+      },
+      {
+        "file": "/callisto/thucy/portal/index007.html",
+        "line": 486
+      },
+      {
+        "file": "/callisto/thucy/portal/index002.html",
+        "line": 381
+      },
+      {
+        "file": "/callisto/thucy/portal/index006.html",
+        "line": 461
+      },
+      {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 89
+        "line": 87
       }
     ]
   },
   {
     "component": "SingleFile",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "SingleFile",
-      "start_line": 40,
-      "end_line": 45
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 78
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 153
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 42
-      },
-      {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 143
-      },
-      {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 227
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 41
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 1254
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 40
+        "line": 36
       }
     ]
   },
   {
     "component": "SpecifyIncrementalOutputFilename",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "SpecifyIncrementalOutputFilename",
-      "start_line": 61,
-      "end_line": 66
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 93
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 173
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 63
-      },
+        "line": 51
+      }
+    ]
+  },
+  {
+    "component": "StatusBarUI",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 193
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 99
+      }
+    ]
+  },
+  {
+    "component": "SupportCloudOptimizedGeoTIFF",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 206
+    },
+    "generated_code": [
+      {
+        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
+        "line": 66
+      }
+    ]
+  },
+  {
+    "component": "SupportPMTiles",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 226
+    },
+    "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
         "line": 61
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 62
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 1077
       }
     ]
   },
   {
     "component": "TargetCompatibleECMAScript",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "TargetCompatibleECMAScript",
-      "start_line": 47,
-      "end_line": 52
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 108
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 246
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 47
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 49
-      },
-      {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 12
-      },
-      {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 145
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 48
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 3621
+        "line": 41
       }
     ]
   },
   {
     "component": "TargetMapLibreGLJS",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "TargetMapLibreGLJS",
-      "start_line": 33,
-      "end_line": 38
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 123
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 266
     },
     "generated_code": [
       {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 8
-      },
-      {
-        "file": "/callisto/thucy/portal/index.html",
-        "line": 144
-      },
-      {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 34
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 291
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 324
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 327
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/pip/_vendor/certifi/cacert.pem",
-        "line": 1471
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 33
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 35
+        "line": 31
       }
     ]
   },
   {
     "component": "UseMIMETypesForCDNs",
-    "python_spec": {
-      "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-      "target": "UseMIMETypesForCDNs",
-      "start_line": 54,
-      "end_line": 59
-    },
+    "python_spec": null,
     "xml_spec": {
-      "file": "spec-build/spec-0f9bc8e6241718da3039.xml",
-      "line": 138
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 286
     },
     "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 56
-      },
+        "line": 46
+      }
+    ]
+  },
+  {
+    "component": "WatermarkBranding",
+    "python_spec": null,
+    "xml_spec": {
+      "file": "spec-build/spec-ceb10f567a3a26d5a90d.xml",
+      "line": 306
+    },
+    "generated_code": [
       {
         "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 55
-      },
-      {
-        "file": "/callisto/thucy/portal/venv313/lib/python3.13/site-packages/setuptools-82.0.1.dist-info/RECORD",
-        "line": 150
-      },
-      {
-        "file": "/callisto/thucy/portal/spec/global_viewer_portal.py",
-        "line": 54
+        "line": 93
       }
     ]
   }

@@ -1,0 +1,328 @@
+<?xml version="1.0" ?>
+<specification_set date-created="2026-04-24T13:36:06.225310-07:00" libspec-version="1.2.0">
+  <specification type="BaseMapSelection">
+    <description>Feature Specification: base-map-selection
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>Add a dropdown to the control panel allowing the user to select between 'Satellite + Roads (Esri)', 'Street Map — Liberty', and 'Street Map — Bright'. When switched, tear down and rebuild the map state retaining the camera viewport.</description>
+      <feature_name>base-map-selection</feature_name>
+    </context>
+  </specification>
+  <specification type="ControlPanelUI">
+    <description>Feature Specification: control-panel-ui
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state).</description>
+      <feature_name>control-panel-ui</feature_name>
+    </context>
+  </specification>
+  <specification type="CustomDataOverlay">
+    <description>Feature Specification: custom-data-overlay
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>Add an 'Overlay' section to the control panel where users can paste a custom map URL (XYZ, pmtiles://, or cog://), toggle its visibility on/off via a switch, and adjust its transparency using a 0-100% opacity slider.</description>
+      <feature_name>custom-data-overlay</feature_name>
+    </context>
+  </specification>
+  <specification type="GlobalViewerPortalState">
+    <description>DATA-MODEL: globe-viewer-state
+FIELDS:
+
+
+  - longitude: &lt;class 'float'&gt;
+
+  - longitude_note: &lt;class 'str'&gt;
+
+  - latitude: &lt;class 'float'&gt;
+
+  - latitude_note: &lt;class 'str'&gt;
+
+  - altitude_m: &lt;class 'float'&gt;
+
+  - altitude_m_note: &lt;class 'str'&gt;
+
+  - base_map: &lt;class 'str'&gt;</description>
+    <notes>A data class to specify what data fields will be stored for remembering cookied user's current state within the app, during and between sessions.</notes>
+    <context>
+      <altitude_m>100</altitude_m>
+      <altitude_m_note>The user's portal altitude from earth mean surface level</altitude_m_note>
+      <base_map>satellite-roads</base_map>
+      <fields>
+        <altitude_m>&lt;class 'float'&gt;</altitude_m>
+        <altitude_m_note>&lt;class 'str'&gt;</altitude_m_note>
+        <base_map>&lt;class 'str'&gt;</base_map>
+        <latitude>&lt;class 'float'&gt;</latitude>
+        <latitude_note>&lt;class 'str'&gt;</latitude_note>
+        <longitude>&lt;class 'float'&gt;</longitude>
+        <longitude_note>&lt;class 'str'&gt;</longitude_note>
+      </fields>
+      <latitude>37.77929461695388</latitude>
+      <latitude_note>The user's view portal's center point latitude in decimal form</latitude_note>
+      <longitude>-122.4192398965667</longitude>
+      <longitude_note>The user's view portal's center point longitude in decimal form</longitude_note>
+      <model_name>globe-viewer-state</model_name>
+    </context>
+  </specification>
+  <specification type="MapLibreGlobeProjection">
+    <description>Requirement
+TITLE: globe-projection
+REQUIREMENT-ID: RQ5
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>Use MapLibre GL JS &gt;= 5.0.0 and call map.setProjection({type:'globe'}) inside the map load event.</action>
+      <actor>LLM</actor>
+      <benefit>Provides a 3D globe visualization instead of a flat 2D map.</benefit>
+      <req_id>RQ5</req_id>
+      <title>globe-projection</title>
+    </context>
+  </specification>
+  <specification type="OnFirstVisit">
+    <description>Feature Specification: on-first-visit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. When a user visits for the very first time, generate a cookie called GLOBAL_VIEWER_UUID (containing a UUID) to know that they've visited.  Generate a second cookie named GLOBAL_VIEWER_STATE to contain GlobalViewerPortalState's values, stored as JSON that's been URI-encoded; LLM will provide code that performs the encodeURIComponent(JSON.stringify(GlobalViewerPortalState instance)) and cookie decoding e.g. JSON.parse(decodeURIComponent(cookie value)).  2. Perform the steps in OnVisit(Feature) to intialize the portal display.</description>
+      <feature_name>on-first-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnReturnVisit">
+    <description>Feature Specification: on-return-visit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE restore its encoded values to the GlobalViewerPortalState instance. 2. Perform the steps in OnVisit(Feature) to intialize the portal display</description>
+      <feature_name>on-return-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisit">
+    <description>Feature Specification: on-visit
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>When a user opens the site in a web browser, perform all software tasks necessary to load MapLibre GL JS's libraries, set the map/globe view portal up, initialize the portal to the default longitude, latitude and altitude</description>
+      <feature_name>on-visit</feature_name>
+    </context>
+  </specification>
+  <specification type="OnVisitTermination">
+    <description>Feature Specification: on-visit-close
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>1. Ensure that when the current browser tab or window closes, that the current GlobalViewerPortalState values are written to GLOBAL_VIEWER_STATE one last time. 2. Then perform all steps necessary to shut down MapLibre GL JS's currently running code, unload allocated objects -whatever's recommended by that project.</description>
+      <feature_name>on-visit-close</feature_name>
+    </context>
+  </specification>
+  <specification type="SingleFile">
+    <description>Requirement
+TITLE: one-source-html-file
+REQUIREMENT-ID: RQ1
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>The LLM should generate all the source in a single HTML file, including ECMAscript</action>
+      <actor>LLM</actor>
+      <benefit>Simplify this project at its early stages, while still evaluating libspec and MapLibre GL JS</benefit>
+      <req_id>RQ1</req_id>
+      <title>one-source-html-file</title>
+    </context>
+  </specification>
+  <specification type="SpecifyIncrementalOutputFilename">
+    <description>Requirement
+TITLE: specify-numbered-output-filenames
+REQUIREMENT-ID: RQ4
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>When writing generated index.html, use the format index%03d.html and increment the number each time, so that previous versions are preserved.</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs when using CDN-loaded resources</benefit>
+      <req_id>RQ4</req_id>
+      <title>specify-numbered-output-filenames</title>
+    </context>
+  </specification>
+  <specification type="StatusBarUI">
+    <description>Feature Specification: status-bar-ui
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>Provide a floating status bar in the bottom-left corner to show portal loading logs, errors, and interaction status messages.</description>
+      <feature_name>status-bar-ui</feature_name>
+    </context>
+  </specification>
+  <specification type="SupportCloudOptimizedGeoTIFF">
+    <description>Requirement
+TITLE: support-cog
+REQUIREMENT-ID: RQ7
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>Load geotiff.js via CDN and implement a custom 'cog://' protocol handler that downloads, normalizes, and color-maps GeoTIFF windows on-the-fly to XYZ canvas blobs.</action>
+      <actor>LLM</actor>
+      <benefit>Enables direct-in-browser rendering of massive remote sensing raster files without a backend server.</benefit>
+      <req_id>RQ7</req_id>
+      <title>support-cog</title>
+    </context>
+  </specification>
+  <specification type="SupportPMTiles">
+    <description>Requirement
+TITLE: support-pmtiles
+REQUIREMENT-ID: RQ6
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>Load the pmtiles.js library via CDN and register the 'pmtiles://' protocol with maplibregl.</action>
+      <actor>LLM</actor>
+      <benefit>Allows rendering single-file PMTiles map tile archives.</benefit>
+      <req_id>RQ6</req_id>
+      <title>support-pmtiles</title>
+    </context>
+  </specification>
+  <specification type="TargetCompatibleECMAScript">
+    <description>Requirement
+TITLE: target-compatible-ecmascript
+REQUIREMENT-ID: RQ2
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>The LLM should generate code compatible with modern browsers, and use Babel &amp; core-js to ensure as wide of an audience as possible via transpiling and/or polyfilling</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs on as many devices as possible</benefit>
+      <req_id>RQ2</req_id>
+      <title>target-compatible-ecmascript</title>
+    </context>
+  </specification>
+  <specification type="TargetMapLibreGLJS">
+    <description>Requirement
+TITLE: Make use of MapeLibre GL JS open-source library
+REQUIREMENT-ID: RQ0
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>provides core map and globe visualization software and tile data</action>
+      <actor>LLM</actor>
+      <benefit>provides a software base that handles an estimated 99% of this app's needs</benefit>
+      <req_id>RQ0</req_id>
+      <title>Make use of MapeLibre GL JS open-source library</title>
+    </context>
+  </specification>
+  <specification type="UseMIMETypesForCDNs">
+    <description>Requirement
+TITLE: specify-mimetype-for-cdn-scripts
+REQUIREMENT-ID: RQ3
+
+Insert REQUIREMENT-ID into any source code for cross reference purposes.
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <action>When generating &lt;Script&gt; tags for CDN resources, the LLM should generate &lt;script&gt; tags that specify mime-types, otherwise browser error handlers will throw errors and prevent the page from rendering.</action>
+      <actor>LLM</actor>
+      <benefit>Ensure this web app runs when using CDN-loaded resources</benefit>
+      <req_id>RQ3</req_id>
+      <title>specify-mimetype-for-cdn-scripts</title>
+    </context>
+  </specification>
+  <specification type="WatermarkBranding">
+    <description>Feature Specification: watermark-branding
+
+It's important that error handling be done excellently.  If a
+function can fail, then it needs to do so in the most elegant way
+possble.  Error reporting, handling, exceptions and all aspects of
+failure must be taken to extreme. It should be possible to
+understand the program by reading the error messages.</description>
+    <context>
+      <date>2026-04-22</date>
+      <description>Add translucent 'THUCYDIDES AEROSPACE' watermark bars locked to the top and bottom of the app layout window.</description>
+      <feature_name>watermark-branding</feature_name>
+    </context>
+  </specification>
+</specification_set>
