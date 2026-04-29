@@ -91,7 +91,7 @@ class OnReturnVisit(Feat):
     def description(self): return """1. Check for GLOBAL_VIEWER_UUID, and if GLOBAL_VIEWER_STATE restore its encoded values to the GlobalViewerPortalState instance. 2. Perform the steps in OnVisit(Feature) to intialize the portal display"""
 
 class WatermarkBranding(Feat):
-    def description(self):  return """Add translucent 'THUCYDIDES AEROSPACE' watermark bars locked to the top and bottom of the app layout window."""
+    def description(self):  return """Add translucent 'CONFIDENTIAL -- THUCYDIDES AEROSPACE -- CONFIDENTIAL' watermark bars locked to the top and bottom of the app layout window."""
 
 class ControlPanelUI(Feat):
     def description(self):  return """Provide a floating control panel that displays: the user's UUID, current live longitude, latitude, and altitude. Also provide interactive buttons to 'Reset Default View' and 'Save State' (manually override/save cookie state)."""
