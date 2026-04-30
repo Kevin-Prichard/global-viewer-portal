@@ -451,12 +451,15 @@
         /* Cache of open GeoTIFF objects keyed by URL */
         var cogCache = {};
 
-        /* Returns a Promise<{data:Blob}> for a 1x1 transparent PNG — used when
-         * a tile has no data, so MapLibre's createImageBitmap() does not throw. */
+        /* Returns a Promise<{data:ArrayBuffer}> for a 1x1 transparent PNG.
+         * MapLibre v5 requires ArrayBuffer (PNG bytes), not a Blob object. */
         function emptyTile() {
           var c = document.createElement('canvas'); c.width = c.height = 1;
-          return new Promise(function(resolve) {
-            c.toBlob(function(b) { resolve({ data: b }); }, 'image/png');
+          return new Promise(function(resolve, reject) {
+            c.toBlob(function(b) {
+              if (!b) { reject(new Error('emptyTile: toBlob returned null')); return; }
+              b.arrayBuffer().then(function(buf) { resolve({ data: buf }); }).catch(reject);
+            }, 'image/png');
           });
         }
 
@@ -601,12 +604,13 @@
               return new Promise(function(resolve, reject) {
                 try {
                   canvas.toBlob(function(blob) {
-                    if (blob) {
-                      console.log('[cog] tile rendered OK z=' + z + ' x=' + x + ' y=' + y + ' blob.size=' + blob.size);
-                      resolve({ data: blob });
-                    } else {
-                      reject(new Error('Failed to create blob from COG tile canvas.'));
-                    }
+                    if (!blob) { reject(new Error('Failed to create blob from COG tile canvas.')); return; }
+                    /* MapLibre v5 requires ArrayBuffer (PNG bytes), not a Blob object.
+                     * Returning a Blob causes createImageBitmap() DOMException in workers. */
+                    blob.arrayBuffer().then(function(buf) {
+                      console.log('[cog] tile rendered OK z=' + z + ' x=' + x + ' y=' + y + ' buf=' + buf.byteLength + 'b');
+                      resolve({ data: buf });
+                    }).catch(reject);
                   }, 'image/png');
                 } catch(blobErr) {
                   reject(new Error('Exception creating blob: ' + blobErr.message));
