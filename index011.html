@@ -500,8 +500,10 @@
 
           if (z === null || isNaN(z) || isNaN(x) || isNaN(y)) {
             // Metadata probe request with no tile coords — return empty gracefully.
+            console.log('[cog] probe/no-coords url=', params.url);
             return emptyTile();
           }
+          console.log('[cog] tile request z=' + z + ' x=' + x + ' y=' + y + ' band=' + requestedBand + ' tif=' + tifUrl);
 
           /* Geographic bounds for this tile (WGS84) */
           var west  = tile2lon(x,     z);
@@ -570,9 +572,12 @@
               var min = Infinity, max = -Infinity;
               for (var i = 0; i < band.length; i += nBand) {
                 var v = band[i];
-                if (v !== undefined && !isNaN(v)) { if (v < min) min = v; if (v > max) max = v; }
+                if (isFinite(v)) { if (v < min) min = v; if (v > max) max = v; }
               }
-              if (min === max) max = min + 1;
+              if (!isFinite(min) || min === max) { min = 0; max = 1; }
+              console.log('[cog] tile z=' + z + ' x=' + x + ' y=' + y + ' band=' + requestedBand +
+                ' rasters.length=' + band.length + ' min=' + min.toFixed(4) + ' max=' + max.toFixed(4) +
+                ' sample0=' + (band[0] !== undefined ? band[0].toFixed(4) : 'undef'));
 
               var pi = 0;
               for (var si = 0; si < band.length; si += nBand) {
@@ -597,6 +602,7 @@
                 try {
                   canvas.toBlob(function(blob) {
                     if (blob) {
+                      console.log('[cog] tile rendered OK z=' + z + ' x=' + x + ' y=' + y + ' blob.size=' + blob.size);
                       resolve({ data: blob });
                     } else {
                       reject(new Error('Failed to create blob from COG tile canvas.'));
@@ -831,6 +837,7 @@ registerProtocols();
             bearing:            0,
             attributionControl: true
           });
+          window._diagMap = map;  /* DevTools: window._diagMap.getStyle().layers etc. */
 
           /* --- DEBUGGING: Turn on tile boundaries so we can see where tiles are --- */
           map.showTileBoundaries = true;
