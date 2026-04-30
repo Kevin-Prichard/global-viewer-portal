@@ -451,6 +451,15 @@
         /* Cache of open GeoTIFF objects keyed by URL */
         var cogCache = {};
 
+        /* Returns a Promise<{data:Blob}> for a 1x1 transparent PNG — used when
+         * a tile has no data, so MapLibre's createImageBitmap() does not throw. */
+        function emptyTile() {
+          var c = document.createElement('canvas'); c.width = c.height = 1;
+          return new Promise(function(resolve) {
+            c.toBlob(function(b) { resolve({ data: b }); }, 'image/png');
+          });
+        }
+
         function tile2lon(x, z) { return x / Math.pow(2, z) * 360 - 180; }
         function tile2lat(y, z) {
           var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
@@ -459,30 +468,40 @@
 
         maplibregl.addProtocol('cog', function (params, abortController) {
           /*
-           * params.url  = "cog://https://example.com/file.tif?colormap=viridis"
-           * params.type = "raster" (MapLibre tile type)
-           * Tile coords available as params.tileID.canonical.{z,x,y}
+           * MapLibre GL JS v5 protocol handler.
+           * params.url is the fully-substituted tile URL, e.g.:
+           *   "cog://http://localhost:8080/file.tif?band=1&_tilereq=4/12/5"
+           * z/x/y are extracted from the _tilereq query param that MapLibre
+           * substitutes from the {z}/{x}/{y} template.
+           * params.tileID does NOT exist in MapLibre v5 — do not use it.
            */
           var rawUrl = params.url.replace(/^cog:\/\//, '');
           var qIdx   = rawUrl.indexOf('?');
           var tifUrl = qIdx >= 0 ? rawUrl.slice(0, qIdx) : rawUrl;
           var qStr   = qIdx >= 0 ? rawUrl.slice(qIdx + 1) : '';
           var cmName = 'viridis';
-          var requestedBand = 0; // Default to the first band (0-indexed)
+          var requestedBand = 0;
+          var z = null, x = null, y = null;
 
           qStr.split('&').forEach(function(kv) {
             var parts = kv.split('=');
             if (parts[0] === 'colormap' && COLORMAPS[parts[1]]) cmName = parts[1];
-            // Subtract 1 with 1-indexed bands in the URL
-            if (parts[0] === 'band') requestedBand = parseInt(parts[1], 10) - 1;
+            if (parts[0] === 'band') requestedBand = Math.max(0, parseInt(parts[1], 10) - 1);
+            if (parts[0] === '_tilereq') {
+              var coords = parts[1].split('/');
+              if (coords.length === 3) {
+                z = parseInt(coords[0], 10);
+                x = parseInt(coords[1], 10);
+                y = parseInt(coords[2], 10);
+              }
+            }
           });
           var colormap = COLORMAPS[cmName];
 
-          var tileID = params.tileID && params.tileID.canonical;
-          if (!tileID) {
-            return Promise.reject(new Error('COG protocol: no tileID on request'));
+          if (z === null || isNaN(z) || isNaN(x) || isNaN(y)) {
+            // Metadata probe request with no tile coords — return empty gracefully.
+            return Promise.resolve({ data: new Uint8Array(0) });
           }
-          var z = tileID.z, x = tileID.x, y = tileID.y;
 
           /* Geographic bounds for this tile (WGS84) */
           var west  = tile2lon(x,     z);
@@ -530,14 +549,6 @@
               return { data: new Uint8Array(0) };
             }
 
-            // Parse ?band=2 (defaulting to 0 if not provided)
-            var requestedBand = 0; // The default
-            qStr.split('&').forEach(function(kv) {
-              var parts = kv.split('=');
-              if (parts[0] === 'band') requestedBand = parseInt(parts[1], 10);
-            });
-
-            debugger;
             return image.readRasters({
               window: [left, top, right, bottom],
               samples: [requestedBand], // Only read the requested timeline band
@@ -555,7 +566,7 @@
 
               /* Determine min/max for normalisation */
               var band  = rasters;            /* interleaved: [b0, b1, ...] per pixel */
-              var nBand = image.getSamplesPerPixel() || 1;
+              var nBand = 1;
               var min = Infinity, max = -Infinity;
               for (var i = 0; i < band.length; i += nBand) {
                 var v = band[i];
