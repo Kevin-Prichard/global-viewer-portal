@@ -500,7 +500,7 @@
 
           if (z === null || isNaN(z) || isNaN(x) || isNaN(y)) {
             // Metadata probe request with no tile coords — return empty gracefully.
-            return Promise.resolve({ data: new Uint8Array(0) });
+            return emptyTile();
           }
 
           /* Geographic bounds for this tile (WGS84) */
@@ -522,14 +522,14 @@
                 throw new Error(msg);
               })
           ).then(function (tif) {
-            if (aborted) return { data: new Uint8Array(0) };
+            if (aborted) return emptyTile();
             return tif.getImage().catch(function(err) {
                 var msg = 'Failed to read image from GeoTIFF (' + tifUrl + '). Error: ' + err.message;
                 console.error('[portal] COG protocol get image error:', msg, err);
                 throw new Error(msg);
             });
           }).then(function (image) {
-            if (aborted) return { data: new Uint8Array(0) };
+            if (aborted) return emptyTile();
 
             var bbox    = image.getBoundingBox();   /* [west,south,east,north] in image CRS */
             var imgW    = image.getWidth();
@@ -546,7 +546,7 @@
 
             if (left >= right || top >= bottom) {
               /* Tile is outside the GeoTIFF extent — return transparent */
-              return { data: new Uint8Array(0) };
+              return emptyTile();
             }
 
             return image.readRasters({
@@ -556,7 +556,7 @@
               height: TILE_PX,
               interleave: true
             }).then(function (rasters) {
-              if (aborted) return { data: new Uint8Array(0) };
+              if (aborted) return emptyTile();
 
               var canvas  = document.createElement('canvas');
               canvas.width = canvas.height = TILE_PX;
@@ -609,7 +609,7 @@
           }).catch(function (err) {
             var msg = '[portal] COG tile error z=' + z + ' x=' + x + ' y=' + y + ' - Exception: ' + (err.message || err);
             console.warn(msg, err);
-            return { data: new Uint8Array(0) };
+            return emptyTile();
           });
 
           return promise;
