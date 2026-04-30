@@ -11,6 +11,7 @@
 
     MapLibre GL JS >= 5.0.0 required for globe projection.
     map.setProjection({type:'globe'}) must be called INSIDE map.once('load',...).
+
   -->
   <link rel="stylesheet" type="text/css"
     href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
@@ -61,7 +62,7 @@
 
     #app { position: relative; background: #0b1020; }
 
-    
+
     /* ── minimized panel ────────────────────────────────────────── */
     #panel.minimized {
       width: auto;
@@ -194,7 +195,7 @@
     <div class="brand-bar top"    aria-hidden="true">THUCYDIDES AEROSPACE</div>
     <div class="brand-bar bottom" aria-hidden="true">THUCYDIDES AEROSPACE</div>
 
-    
+
     <section id="panel" aria-live="polite">
       <div class="mini-view" id="miniViewText"></div>
 
@@ -467,9 +468,13 @@
           var tifUrl = qIdx >= 0 ? rawUrl.slice(0, qIdx) : rawUrl;
           var qStr   = qIdx >= 0 ? rawUrl.slice(qIdx + 1) : '';
           var cmName = 'viridis';
+          var requestedBand = 0; // Default to the first band (0-indexed)
+
           qStr.split('&').forEach(function(kv) {
             var parts = kv.split('=');
             if (parts[0] === 'colormap' && COLORMAPS[parts[1]]) cmName = parts[1];
+            // Subtract 1 with 1-indexed bands in the URL
+            if (parts[0] === 'band') requestedBand = parseInt(parts[1], 10) - 1;
           });
           var colormap = COLORMAPS[cmName];
 
@@ -525,8 +530,17 @@
               return { data: new Uint8Array(0) };
             }
 
+            // Parse ?band=2 (defaulting to 0 if not provided)
+            var requestedBand = 0; // The default
+            qStr.split('&').forEach(function(kv) {
+              var parts = kv.split('=');
+              if (parts[0] === 'band') requestedBand = parseInt(parts[1], 10);
+            });
+
+            debugger;
             return image.readRasters({
               window: [left, top, right, bottom],
+              samples: [requestedBand], // Only read the requested timeline band
               width:  TILE_PX,
               height: TILE_PX,
               interleave: true
@@ -688,14 +702,6 @@
             tiles: [url + (url.indexOf('?') >= 0 ? '&' : '?') + '_tilereq={z}/{x}/{y}'],
             tileSize: 256
           });
-          /* COG protocol uses the url directly — tell MapLibre via tiles array */
-          /* Remove the workaround tile URL — use the cog:// URL directly */
-          map.removeSource(OVL_SOURCE);
-          map.addSource(OVL_SOURCE, {
-            type:  'raster',
-            tiles: [url],
-            tileSize: 256
-          });
           map.addLayer({
             id:     OVL_LAYER,
             type:   'raster',
@@ -750,7 +756,7 @@
       var overlayActive = false;
 
       /* Register custom tile protocols */
-      
+
     var hideTimeout = null;
     function resetHideTimer() {
       if (hideTimeout) clearTimeout(hideTimeout);
@@ -810,7 +816,7 @@ registerProtocols();
             attributionControl: true
           });
 
-          /* --- DEBUGGING: Turn on tile boundaries so you can see where tiles are --- */
+          /* --- DEBUGGING: Turn on tile boundaries so we can see where tiles are --- */
           map.showTileBoundaries = true;
 
           map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
