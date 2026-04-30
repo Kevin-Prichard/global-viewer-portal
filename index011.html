@@ -576,14 +576,19 @@
 
               var pi = 0;
               for (var si = 0; si < band.length; si += nBand) {
-                var val  = band[si];
+                var val = band[si];
+                if (!isFinite(val) || val === 0) {
+                  pixels[pi + 3] = 0;   // transparent: NoData or exact zero
+                  pi += 4;
+                  continue;
+                }
                 var norm = (val - min) / (max - min);
                 norm = Math.max(0, Math.min(1, norm));
-                var rgb  = colormap[Math.round(norm * 255)];
+                var rgb = colormap[Math.round(norm * 255)];
                 pixels[pi]     = rgb[0];
                 pixels[pi + 1] = rgb[1];
                 pixels[pi + 2] = rgb[2];
-                pixels[pi + 3] = (val !== undefined && !isNaN(val)) ? 220 : 0;
+                pixels[pi + 3] = 255;   // fully opaque for valid data
                 pi += 4;
               }
 
