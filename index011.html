@@ -528,7 +528,27 @@
               })
           ).then(function (tif) {
             if (aborted) return emptyTile();
-            return tif.getImage().catch(function(err) {
+            /* Select best overview level for zoom z.
+             * Source is 1440px wide. Each overview halves resolution.
+             * At zoom z one tile covers 1440/2^z source pixels; if that
+             * is ≤256 we need full-res; otherwise pick the coarsest
+             * overview where ovWidth/2^z ≥ 256.
+             * This dramatically reduces range-request size at low zoom. */
+            return tif.getImageCount().then(function(count) {
+              var best = 0;
+              var promises = [];
+              for (var oi = 0; oi < count; oi++) { promises.push(tif.getImage(oi)); }
+              return Promise.all(promises).then(function(imgs) {
+                for (var oi = count - 1; oi >= 0; oi--) {
+                  var w = imgs[oi].getWidth();
+                  if (w / Math.pow(2, z) >= 256) { best = oi; break; }
+                }
+                console.log('[cog] overview selected: level=' + best + ' of ' + count + ' for z=' + z);
+                return imgs[best];
+              });
+            }).catch(function() {
+              return tif.getImage(0);
+            }).catch(function(err) {
                 var msg = 'Failed to read image from GeoTIFF (' + tifUrl + '). Error: ' + err.message;
                 console.error('[portal] COG protocol get image error:', msg, err);
                 throw new Error(msg);
