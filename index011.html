@@ -864,7 +864,7 @@ registerProtocols();
           window._diagMap = map;  /* DevTools: window._diagMap.getStyle().layers etc. */
 
           /* --- DEBUGGING: Turn on tile boundaries so we can see where tiles are --- */
-          map.showTileBoundaries = true;
+          map.showTileBoundaries = false;
 
           map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
           map.addControl(new maplibregl.ScaleControl(), 'bottom-right');
