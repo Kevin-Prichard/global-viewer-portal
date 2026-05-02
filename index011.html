@@ -131,26 +131,6 @@
     }
 
     /* ── overlay controls ───────────────────────────────────────── */
-    .overlay-row {
-      display: flex; align-items: center; gap: 0.5rem;
-      margin-bottom: 0.35rem;
-    }
-    .overlay-row label { font-size: 0.78rem; font-weight: 600; flex: 0 0 auto; }
-    .overlay-toggle {
-      position: relative; width: 32px; height: 18px; flex-shrink: 0;
-    }
-    .overlay-toggle input { opacity: 0; width: 0; height: 0; }
-    .overlay-toggle .slider {
-      position: absolute; inset: 0; background: #ccc;
-      border-radius: 18px; cursor: pointer; transition: background 0.2s;
-    }
-    .overlay-toggle .slider:before {
-      content: ''; position: absolute; height: 12px; width: 12px;
-      left: 3px; bottom: 3px; background: white;
-      border-radius: 50%; transition: transform 0.2s;
-    }
-    .overlay-toggle input:checked + .slider { background: var(--accent); }
-    .overlay-toggle input:checked + .slider:before { transform: translateX(14px); }
 
     .opacity-row {
       display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;
@@ -159,14 +139,6 @@
     .opacity-row input[type=range] { flex: 1; accent-color: var(--accent); }
     .opacity-row .opacity-val { font-size: 0.75rem; flex: 0 0 32px; text-align: right; }
 
-    .url-row { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.4rem; }
-    .url-row label { font-size: 0.75rem; font-weight: 600; }
-    .url-row input[type=text] {
-      width: 100%; padding: 0.3rem 0.45rem; border: 1px solid #ccc;
-      border-radius: 0.3rem; font-size: 0.73rem; font-family: monospace;
-      background: #f9f9f9;
-    }
-    .url-row .url-hint { font-size: 0.68rem; color: #888; line-height: 1.3; }
 
     /* ── buttons ────────────────────────────────────────────────── */
     #panel .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
@@ -220,30 +192,15 @@
       <!-- Data overlay -->
       <div class="section-label">Data Overlay</div>
 
-      <div class="overlay-row">
-        <label for="overlayToggle">Show</label>
-        <label class="overlay-toggle">
-          <input type="checkbox" id="overlayToggle" />
-          <span class="slider"></span>
-        </label>
-        <span id="overlayStatus" style="font-size:0.72rem;color:#666;">off</span>
+      <div class="map-selector" style="margin-bottom:0.35rem;">
+        <label for="overlaySelect" style="font-size:0.78rem;font-weight:600;">Data Source</label>
+        <select id="overlaySelect"></select>
       </div>
 
       <div class="opacity-row">
         <label for="overlayOpacity">Opacity</label>
         <input type="range" id="overlayOpacity" min="0" max="1" step="0.05" value="0.8" />
         <span class="opacity-val" id="overlayOpacityVal">80%</span>
-      </div>
-
-      <div class="url-row">
-        <label for="overlayUrl">Data URL</label>
-        <input type="text" id="overlayUrl"
-          placeholder="http://…/{z}/{x}/{y}.png  |  pmtiles://…  |  cog://…"
-          value="" />
-        <span class="url-hint">
-          Accepts XYZ tile URL ({z}/{x}/{y}), pmtiles:// archive, or cog:// GeoTIFF URL.
-          Tiles conform to the globe surface automatically.
-        </span>
       </div>
 
       <div class="btn-row">
@@ -274,6 +231,32 @@
 
     var LIBERTY_URL = 'https://tiles.openfreemap.org/styles/liberty';
     var BRIGHT_URL  = 'https://tiles.openfreemap.org/styles/bright';
+
+    /* ── Data overlay sources ───────────────────────────────────── */
+    var DATA_SOURCES = [
+      { name: 'original',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1.tif?band=1&colormap=plasma' },
+      { name: 'weighted average',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-average.tif?band=1&colormap=plasma' },
+      { name: 'nearest neighbor',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-nearest.tif?band=1&colormap=plasma' },
+      { name: 'bilinear',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-bilinear.tif?band=1&colormap=plasma' },
+      { name: 'cubic',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-cubic.tif?band=1&colormap=plasma' },
+      { name: 'cubic spline',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-cubicspline.tif?band=1&colormap=plasma' },
+      { name: 'lanczos',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-lanczos.tif?band=1&colormap=plasma' },
+      { name: 'gauss',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-gauss.tif?band=1&colormap=plasma' },
+      { name: 'mode (most common value)',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-mode.tif?band=1&colormap=plasma' },
+      { name: 'average magphase (complex plane avg of mag/phase)',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-average_magphase.tif?band=1&colormap=plasma' },
+      { name: 'rms (root mean squared)',
+        value: 'cog://http://thucy.mycrap.xyz/tiles/ru-20260428-16d-v4.1-rms.tif?band=1&colormap=plasma' }
+    ];
 
     var BASE_MAPS = {
       'satellite-roads': { label: 'Satellite + Roads (Esri)',          styleUrl: LIBERTY_URL, satellite: true  },
@@ -799,7 +782,16 @@
      * ────────────────────────────────────────────────────────────*/
     function bootPortal() {
       var state, map = null, terminationRan = false;
-      var overlayActive = false;
+      var overlayActive = true;   /* overlay is always on */
+
+      /* Populate the data source dropdown */
+      var overlaySelectEl = el('overlaySelect');
+      for (var di = 0; di < DATA_SOURCES.length; di++) {
+        var opt = document.createElement('option');
+        opt.value = DATA_SOURCES[di].value;
+        opt.textContent = DATA_SOURCES[di].name;
+        overlaySelectEl.appendChild(opt);
+      }
 
       /* Register custom tile protocols */
 
@@ -879,7 +871,7 @@ registerProtocols();
 
             /* Re-apply overlay if it was active before a base-map switch */
             if (overlayActive) {
-              var url     = el('overlayUrl').value.trim();
+              var url     = el('overlaySelect').value;
               var opacity = parseFloat(el('overlayOpacity').value);
               if (url) addDataOverlay(map, url, opacity);
             }
@@ -929,38 +921,19 @@ registerProtocols();
         }
       });
 
-      /* ── overlay toggle ─────────────────────────────────────── */
-      el('overlayToggle').addEventListener('change', function () {
+      /* ── overlay source selector ────────────────────────────────── */
+      el('overlaySelect').addEventListener('change', function () {
         if (!map || !map.isStyleLoaded()) return;
-        overlayActive = this.checked;
-        if (overlayActive) {
-          var url     = el('overlayUrl').value.trim();
-          var opacity = parseFloat(el('overlayOpacity').value);
-          if (!url) {
-            this.checked = false;
-            overlayActive = false;
-            el('overlayStatus').textContent = 'enter URL first';
-            return;
-          }
-          var ok = addDataOverlay(map, url, opacity);
-          el('overlayStatus').textContent = ok ? 'loading…' : 'error — see console';
-          if (!ok) { this.checked = false; overlayActive = false; }
-
-          /* Update status when tiles load */
-          map.once('idle', function () {
-            if (overlayActive) el('overlayStatus').textContent = 'on';
-          });
-        } else {
-          removeDataOverlay(map);
-          el('overlayStatus').textContent = 'off';
-        }
+        var url     = this.value;
+        var opacity = parseFloat(el('overlayOpacity').value);
+        addDataOverlay(map, url, opacity);
       });
 
       /* ── overlay opacity slider ─────────────────────────────── */
       el('overlayOpacity').addEventListener('input', function () {
         var v = parseFloat(this.value);
         el('overlayOpacityVal').textContent = Math.round(v * 100) + '%';
-        if (map && overlayActive) setOverlayOpacity(map, v);
+        if (map) setOverlayOpacity(map, v);
       });
 
       /* ── buttons ────────────────────────────────────────────── */
