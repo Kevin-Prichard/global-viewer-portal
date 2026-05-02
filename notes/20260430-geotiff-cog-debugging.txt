@@ -1,0 +1,81 @@
+[diag] Opening GeoTIFF... debugger eval code:10:11
+Promise { <state>: "pending" }
+
+[diag] bbox: 
+Array(4) [ -180.125, -90.125, 179.875, 90.125 ]
+[diag] size: 1440 x 721
+[diag] samplesPerPixel: 125
+[diag] fileDirectory: 
+Object { actualizedFields: Map(17), deferredFields: Map(0), deferredFieldsBeingResolved: Map(0), deferredArrays: Map(2), nextIFDByteOffset: 346975564 }
+[diag] Reading band 0, 10x10 window...
+[diag] rasters type: Float32Array
+[diag] rasters length: 100
+[diag] first 10 values: 
+Array(10) [ -1.605434536933899, -1.605434536933899, -1.595434546470642, -1.5854345560073853, -1.5754345655441284, -1.5654345750808716, -1.5654345750808716, -1.5554345846176147, -1.545434594154358, -1.5354344844818115 ]
+​
+cog://http://localhost:8080/ru-20260428-16d.tif?band=1&colormap=plasma
+
+
+[cog] tile z=14 x=9903 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946
+[cog] tile rendered OK z=14 x=9903 y=5121 blob.size=1676
+[cog] tile z=14 x=9905 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile request z=14 x=9900 y=5123 band=0 tif=http://localhost:8080/ru-20260428-16d.tif index011.html:506:19
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile z=14 x=9905 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile z=14 x=9902 y=5122 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile z=14 x=9902 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile rendered OK z=14 x=9905 y=5123 blob.size=1676
+[cog] tile z=14 x=9902 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile rendered OK z=14 x=9905 y=5121 blob.size=1676
+[cog] tile rendered OK z=14 x=9902 y=5122 blob.size=1676
+[cog] tile rendered OK z=14 x=9902 y=5123 blob.size=1676
+[cog] tile request z=14 x=9900 y=5121 band=0 tif=http://localhost:8080/ru-20260428-16d.tif index011.html:506:19
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile rendered OK z=14 x=9902 y=5121 blob.size=1676
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile z=14 x=9906 y=5122 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile rendered OK z=14 x=9906 y=5122 blob.size=1676
+[cog] tile z=14 x=9906 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile z=14 x=9906 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile z=14 x=9901 y=5122 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile rendered OK z=14 x=9906 y=5123 blob.size=1676
+[cog] tile z=14 x=9901 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile z=14 x=9901 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile rendered OK z=14 x=9906 y=5121 blob.size=1676
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile rendered OK z=14 x=9901 y=5122 blob.size=1676
+[cog] tile rendered OK z=14 x=9901 y=5123 blob.size=1676
+[cog] tile rendered OK z=14 x=9901 y=5121 blob.size=1676
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile z=14 x=9907 y=5122 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile z=14 x=9907 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile rendered OK z=14 x=9907 y=5122 blob.size=1676
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile z=14 x=9907 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.5046 index011.html:578:23
+[cog] tile rendered OK z=14 x=9907 y=5123 blob.size=1676
+[cog] tile z=14 x=9900 y=5122 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile z=14 x=9900 y=5123 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[cog] tile z=14 x=9900 y=5121 band=0 rasters.length=65536 min=0.0000 max=1.0000 sample0=7.9946 index011.html:578:23
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[cog] tile rendered OK z=14 x=9907 y=5121 blob.size=1676
+[cog] tile rendered OK z=14 x=9900 y=5122 blob.size=1676
+[cog] tile rendered OK z=14 x=9900 y=5123 blob.size=1676
+[cog] tile rendered OK z=14 x=9900 y=5121 blob.size=1676
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+[maplibre] map error event: DOMException: An attempt was made to use an object that is not, or is no longer, usable
+
+
+cog://http://localhost:8080/ru-20260428-16d-v4.tif?band=1&colormap=plasma
+
+cog://http://thucy.mycrap.xyz/tiles/v4.tif?band=1&colormap=plasma
+
+
